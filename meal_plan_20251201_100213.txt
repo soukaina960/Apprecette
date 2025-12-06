@@ -1,0 +1,155 @@
+╔════════════════════════════════════════╗
+║         📋 SMARTMEAL PLANNER          ║
+║         Plan Alimentaire Premium      ║
+╚════════════════════════════════════════╝
+
+🔮 Jours: 7 | 🎯 Calories/jour: 200
+══════════════════════════════════════════════════
+
+
+✨ JOUR 1
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Omelette aux légumes
+   ⏱️  15 min | 🔥 280 cal | 🎯 Facile
+   📝 2 œufs, 50g épinards, 30g champignons, 20g fromage, 1 c.à.s huile olive...
+
+🍽️  Déjeuner:
+   📛 Wrap Poulet Caesar
+   ⏱️  15 min | 🔥 380 cal | 🎯 Facile
+   📝 Tortilla, Poulet grillé, Laitue, Parmesan, Sauce caesar light...
+
+🍽️  Dîner:
+   📛 Poke Bowl Thon
+   ⏱️  20 min | 🔥 400 cal | 🎯 Facile
+   📝 Thon, Riz vinaigré, Avocat, Algues, Graines, Sauce soja...
+
+📊 TOTAL JOUR 1: 1060 calories
+══════════════════════════════════════════════════
+
+✨ JOUR 2
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Omelette Proteinée
+   ⏱️  15 min | 🔥 400 cal | 🎯 Facile
+   📝 3 Œufs, Blanc de poulet, Poivrons, Oignon, Fromage...
+
+🍽️  Déjeuner:
+   📛 Bowl Buddha Coloré
+   ⏱️  25 min | 🔥 420 cal | 🎯 Moyen
+   📝 Quinoa, Patate douce, Avocat, Carotte, Sauce tahini...
+
+🍽️  Dîner:
+   📛 Saumon et légumes rôtis
+   ⏱️  30 min | 🔥 420 cal | 🎯 Moyen
+   📝 150g saumon, 200g brocoli, 100g carottes, ail, herbes...
+
+📊 TOTAL JOUR 2: 1240 calories
+══════════════════════════════════════════════════
+
+✨ JOUR 3
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Bowl Avoine Énergie
+   ⏱️  10 min | 🔥 320 cal | 🎯 Facile
+   📝 Flocons davoine, Lait damande, Myrtilles, Noix, Miel...
+
+🍽️  Déjeuner:
+   📛 Salade César Maison
+   ⏱️  10 min | 🔥 350 cal | 🎯 Facile
+   📝 Laitue romaine, Poulet grillé, Croûtons, Parmesan, Sauce césar...
+
+🍽️  Dîner:
+   📛 Pâtes Saumon Épinards
+   ⏱️  25 min | 🔥 480 cal | 🎯 Moyen
+   📝 Pâtes complètes, Saumon fumé, Épinards, Crème légère, Ail...
+
+📊 TOTAL JOUR 3: 1150 calories
+══════════════════════════════════════════════════
+
+✨ JOUR 4
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Omelette Proteinée
+   ⏱️  15 min | 🔥 400 cal | 🎯 Facile
+   📝 3 Œufs, Blanc de poulet, Poivrons, Oignon, Fromage...
+
+🍽️  Déjeuner:
+   📛 Wrap Poulet Caesar
+   ⏱️  15 min | 🔥 380 cal | 🎯 Facile
+   📝 Tortilla, Poulet grillé, Laitue, Parmesan, Sauce caesar light...
+
+🍽️  Dîner:
+   📛 Pâtes Saumon Épinards
+   ⏱️  25 min | 🔥 480 cal | 🎯 Moyen
+   📝 Pâtes complètes, Saumon fumé, Épinards, Crème légère, Ail...
+
+📊 TOTAL JOUR 4: 1260 calories
+══════════════════════════════════════════════════
+
+✨ JOUR 5
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Omelette aux légumes
+   ⏱️  15 min | 🔥 280 cal | 🎯 Facile
+   📝 2 œufs, 50g épinards, 30g champignons, 20g fromage, 1 c.à.s huile olive...
+
+🍽️  Déjeuner:
+   📛 Bowl Buddha Coloré
+   ⏱️  25 min | 🔥 420 cal | 🎯 Moyen
+   📝 Quinoa, Patate douce, Avocat, Carotte, Sauce tahini...
+
+🍽️  Dîner:
+   📛 Saumon et légumes rôtis
+   ⏱️  30 min | 🔥 420 cal | 🎯 Moyen
+   📝 150g saumon, 200g brocoli, 100g carottes, ail, herbes...
+
+📊 TOTAL JOUR 5: 1120 calories
+══════════════════════════════════════════════════
+
+✨ JOUR 6
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Bowl Avoine Énergie
+   ⏱️  10 min | 🔥 320 cal | 🎯 Facile
+   📝 Flocons davoine, Lait damande, Myrtilles, Noix, Miel...
+
+🍽️  Déjeuner:
+   📛 Salade Quinoa Feta
+   ⏱️  20 min | 🔥 320 cal | 🎯 Facile
+   📝 Quinoa, Feta, Concombre, Olives, Huile dolive, Citron...
+
+🍽️  Dîner:
+   📛 Poke Bowl Thon
+   ⏱️  20 min | 🔥 400 cal | 🎯 Facile
+   📝 Thon, Riz vinaigré, Avocat, Algues, Graines, Sauce soja...
+
+📊 TOTAL JOUR 6: 1040 calories
+══════════════════════════════════════════════════
+
+✨ JOUR 7
+───────────────────────────────────
+
+🍽️  Petit-déjeuner:
+   📛 Omelette Proteinée
+   ⏱️  15 min | 🔥 400 cal | 🎯 Facile
+   📝 3 Œufs, Blanc de poulet, Poivrons, Oignon, Fromage...
+
+🍽️  Déjeuner:
+   📛 Bowl Buddha Coloré
+   ⏱️  25 min | 🔥 420 cal | 🎯 Moyen
+   📝 Quinoa, Patate douce, Avocat, Carotte, Sauce tahini...
+
+🍽️  Dîner:
+   📛 Saumon et légumes rôtis
+   ⏱️  30 min | 🔥 420 cal | 🎯 Moyen
+   📝 150g saumon, 200g brocoli, 100g carottes, ail, herbes...
+
+📊 TOTAL JOUR 7: 1240 calories
+══════════════════════════════════════════════════
