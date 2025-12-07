@@ -1,143 +1,81 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
-from tkinter import font as tkfont
 import sqlite3
 import random
 from datetime import datetime
-from PIL import Image, ImageTk
-
-from io import BytesIO
-import os
 
 class ModernSmartMealPlanner:
     def __init__(self, root):
         self.root = root
-        self.root.title("🍽️ SmartMeal Planner - Repas Sains & Intelligents")
-        self.root.geometry("1600x1000")
+        self.root.title("🍽️ SmartMeal-Planner - Repas sains & intelligents")
+        self.root.geometry("1400x900")
+        self.root.configure(bg='#0f172a')  # Fond bleu nuit moderne
         
-        # Configuration des styles et couleurs modernes
+        # Configuration des styles modernes
         self.setup_styles()
-        self.setup_images()
         
         self.current_user = None
         self.setup_database()
-        
-        # Police personnalisée
-        self.setup_fonts()
-        
-        # Afficher l'écran de connexion
         self.show_login_screen()
-    
-    def setup_fonts(self):
-        """Configure les polices personnalisées"""
-        try:
-            self.title_font = ('Montserrat', 36, 'bold')
-            self.subtitle_font = ('Montserrat', 16)
-            self.heading_font = ('Montserrat', 24, 'bold')
-            self.body_font = ('Segoe UI', 11)
-            self.button_font = ('Segoe UI', 12, 'bold')
-        except:
-            # Fallback aux polices standards
-            self.title_font = ('Helvetica', 32, 'bold')
-            self.subtitle_font = ('Helvetica', 14)
-            self.heading_font = ('Helvetica', 20, 'bold')
-            self.body_font = ('Arial', 10)
-            self.button_font = ('Arial', 11, 'bold')
     
     def setup_styles(self):
         """Configure les styles modernes"""
-        self.colors = {
-            'primary': '#00C897',  # Vert émeraude moderne
-            'primary_light': '#5CE3B8',
-            'primary_dark': '#008A68',
-            'secondary': '#FF6B6B',  # Corail
-            'accent': '#FFD166',  # Jaune doux
-            'background': '#1A1A2E',  # Fond bleu nuit
-            'card_bg': '#162447',  # Bleu carte
-            'card_hover': '#1F4068',  # Bleu carte hover
-            'text_primary': '#FFFFFF',
-            'text_secondary': '#B8B8D1',
-            'text_muted': '#8A8AA3',
-            'success': '#06D6A0',
-            'warning': '#FFD166',
-            'danger': '#EF476F',
-            'gradient_start': '#00C897',
-            'gradient_end': '#0077B6'
-        }
-        
-        # Configuration de la fenêtre principale
-        self.root.configure(bg=self.colors['background'])
-        
-        # Style ttk
         style = ttk.Style()
+        
+        # Thème moderne
         style.theme_use('clam')
         
-        # Style pour les boutons
-        style.configure('Gradient.TButton',
-                      font=self.button_font,
-                      borderwidth=0,
-                      focuscolor='none',
-                      relief='flat',
-                      background=self.colors['primary'],
-                      foreground=self.colors['text_primary'],
-                      padding=15)
+        # Couleurs modernes
+        self.colors = {
+            'primary': '#10b981',
+            'primary_dark': '#059669',
+            'primary_light': '#34d399',
+            'background': '#0f172a',
+            'card_bg': '#1e293b',
+            'text_primary': '#f1f5f9',
+            'text_secondary': '#94a3b8',
+            'accent': '#f59e0b'
+        }
         
-        style.map('Gradient.TButton',
+        # Configuration des styles
+        style.configure('Modern.TFrame', background=self.colors['background'])
+        style.configure('Card.TFrame', background=self.colors['card_bg'], relief='flat', borderwidth=0)
+        
+        style.configure('Primary.TButton', 
+                       background=self.colors['primary'],
+                       foreground=self.colors['text_primary'],
+                       borderwidth=0,
+                       focuscolor='none',
+                       font=('Segoe UI', 12, 'bold'))
+        
+        style.map('Primary.TButton',
                  background=[('active', self.colors['primary_dark']),
                            ('pressed', self.colors['primary_dark'])])
         
-        style.configure('Outline.TButton',
-                       font=self.button_font,
-                       borderwidth=2,
-                       relief='solid',
-                       background='transparent',
-                       foreground=self.colors['primary'],
-                       padding=10)
-        
-        # Style pour les cartes
-        style.configure('Card.TFrame',
+        style.configure('Secondary.TButton',
                        background=self.colors['card_bg'],
-                       relief='flat')
+                       foreground=self.colors['primary_light'],
+                       borderwidth=1,
+                       relief='solid',
+                       font=('Segoe UI', 11))
         
-        # Style pour les labels
-        style.configure('Title.TLabel',
-                       font=self.title_font,
+        style.configure('Modern.TLabel',
                        background=self.colors['background'],
-                       foreground=self.colors['text_primary'])
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 10))
+        
+        style.configure('Title.TLabel',
+                       background=self.colors['background'],
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 24, 'bold'))
         
         style.configure('Subtitle.TLabel',
-                       font=self.subtitle_font,
                        background=self.colors['background'],
-                       foreground=self.colors['text_secondary'])
-    
-    def setup_images(self):
-        """Configure les images par défaut pour les recettes"""
-        # Images par défaut (peuvent être remplacées par des URLs réelles)
-        self.recipe_images = {
-            'default': self.create_color_image(self.colors['primary'], (300, 200)),
-            'breakfast': self.create_color_image('#FFD166', (300, 200)),
-            'lunch': self.create_color_image('#06D6A0', (300, 200)),
-            'dinner': self.create_color_image('#0077B6', (300, 200)),
-            'vegetarian': self.create_color_image('#7BDFA0', (300, 200))
-        }
-        
-        # Icônes pour les catégories
-        self.category_icons = {
-            'Petit-déjeuner': '🥐',
-            'Déjeuner': '🍲',
-            'Dîner': '🍽️',
-            'Végétarien': '🥗',
-            'Healthy': '🥑',
-            'Rapide': '⚡'
-        }
-    
-    def create_color_image(self, color, size):
-        """Crée une image de couleur unie (pour les placeholders)"""
-        img = Image.new('RGB', size, color)
-        return ImageTk.PhotoImage(img)
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 14))
     
     def setup_database(self):
-        """Initialise la base de données avec des recettes améliorées"""
+        """Initialise la base de données"""
         self.conn = sqlite3.connect('meal_planner.db', check_same_thread=False)
         self.cursor = self.conn.cursor()
         
@@ -151,34 +89,25 @@ class ModernSmartMealPlanner:
                 password TEXT NOT NULL,
                 height INTEGER,
                 weight REAL,
-                age INTEGER,
-                goal TEXT,
-                activity_level TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         
-        # Table recettes avec plus de détails
+        # Table recettes
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS recipes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 category TEXT NOT NULL,
-                subcategory TEXT,
                 ingredients TEXT NOT NULL,
                 instructions TEXT NOT NULL,
                 calories INTEGER,
-                protein REAL,
-                carbs REAL,
-                fat REAL,
                 prep_time INTEGER,
-                difficulty TEXT,
-                image_url TEXT,
-                tags TEXT
+                difficulty TEXT
             )
         ''')
         
-        # Table plans sauvegardés
+        # Table inscriptions (pour les plans sauvegardés)
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS saved_plans (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -192,71 +121,59 @@ class ModernSmartMealPlanner:
             )
         ''')
         
-        # Table favoris
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS favorites (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                recipe_id INTEGER,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users (id),
-                FOREIGN KEY (recipe_id) REFERENCES recipes (id)
-            )
-        ''')
-        
         self.populate_sample_recipes()
         self.conn.commit()
     
     def populate_sample_recipes(self):
-        """Remplit la base avec des recettes modernes et détaillées"""
+        """Remplit la base avec des recettes d'exemple modernes"""
         sample_recipes = [
             # Petit-déjeuners
-            ('Bowl Avoine Énergie', 'Petit-déjeuner', 'Healthy',
-             'Flocons davoine 50g, Lait damande 200ml, Myrtilles 100g, Noix 30g, Miel 1cs, Graines de chia 10g',
-             '1. Faire tremper les flocons davoine dans le lait pendant 5 min\n2. Ajouter les myrtilles et les noix\n3. Arroser de miel et saupoudrer de graines de chia\n4. Servir frais',
-             320, 12, 45, 8, 10, 'Facile', None, 'healthy,rapide,végétarien'),
+            ('Bowl Avoine Énergie', 'Petit-déjeuner', 
+             'Flocons davoine, Lait damande, Myrtilles, Noix, Miel', 
+             'Cuire lavoine 8 min, ajouter fruits et noix, arroser de miel', 
+             320, 10, 'Facile'),
             
-            ('Smoothie Vert Vitalité', 'Petit-déjeuner', 'Detox',
-             'Épinards 50g, Banane 1, Avocat ½, Lait damande 200ml, Graines de chia 1cs, Miel 1cs',
-             '1. Laver les épinards\n2. Éplucher la banane et lavocat\n3. Tout mixer pendant 2 min\n4. Ajouter les graines de chia et servir immédiatement',
-             280, 8, 35, 10, 5, 'Facile', None, 'detox,rapide,végétalien'),
+            ('Smoothie Vert Vitalité', 'Petit-déjeuner', 
+             'Épinards, Banane, Avocat, Lait végétal, Graines de chia', 
+             'Mixer tous les ingrédients 2 min jusquà consistance lisse', 
+             280, 5, 'Facile'),
             
-            ('Toast Avocat Œuf', 'Petit-déjeuner', 'Protéiné',
-             'Pain complet 2 tranches, Avocat 1, Œufs 2, Graines de sésame 1cs, Piment rouge, Citron',
-             '1. Griller le pain\n2. Écraser lavocat avec du jus de citron\n3. Cuire les œufs au plat\n4. Étaler lavocat sur le pain, ajouter les œufs et garnir',
-             350, 18, 30, 15, 12, 'Facile', None, 'protéiné,équilibré'),
+            ('Toast Avocat Œuf', 'Petit-déjeuner', 
+             'Pain complet, Avocat, Œuf, Graines de sésame, Piment', 
+             'Griller pain, écraser avocat, cuire œuf au plat, assembler', 
+             350, 12, 'Facile'),
             
             # Déjeuners
-            ('Bowl Buddha Coloré', 'Déjeuner', 'Végétarien',
-             'Quinoa 100g, Patate douce 200g, Avocat 1, Carotte 1, Concombre ½, Sauce tahini 2cs',
-             '1. Cuire le quinoa 15 min\n2. Rôtir la patate douce au four\n3. Couper les légumes en dés\n4. Assembler et napper de sauce tahini',
-             420, 15, 60, 12, 25, 'Moyen', None, 'végétarien,coloré,healthy'),
+            ('Bowl Buddha Coloré', 'Déjeuner', 
+             'Quinoa, Patate douce, Avocat, Carotte, Sauce tahini', 
+             'Cuire quinoa et patate, couper légumes, assembler avec sauce', 
+             420, 25, 'Moyen'),
             
-            ('Wrap Poulet Caesar', 'Déjeuner', 'Protéiné',
-             'Tortilla complète 1, Poulet grillé 150g, Laitue romaine 50g, Parmesan 30g, Sauce caesar light 2cs, Tomates cerises',
-             '1. Faire griller le poulet\n2. Chauffer la tortilla\n3. Garnir avec tous les ingrédients\n4. Rouler et servir chaud',
-             380, 35, 30, 10, 15, 'Facile', None, 'protéiné,rapide'),
+            ('Wrap Poulet Caesar', 'Déjeuner', 
+             'Tortilla, Poulet grillé, Laitue, Parmesan, Sauce caesar light', 
+             'Faire griller poulet, chauffer tortilla, garnir et rouler', 
+             380, 15, 'Facile'),
             
-            ('Salade Quinoa Feta', 'Déjeuner', 'Méditerranéen',
-             'Quinoa 100g, Feta 80g, Concombre 1, Olives noires 50g, Huile dolive 2cs, Citron 1, Menthe fraîche',
-             '1. Cuire le quinoa\n2. Couper les légumes en dés\n3. Émietter la feta\n4. Mélanger et assaisonner',
-             320, 14, 40, 12, 20, 'Facile', None, 'méditerranéen,végétarien,frais'),
+            ('Salade Quinoa Feta', 'Déjeuner', 
+             'Quinoa, Feta, Concombre, Olives, Huile dolive, Citron', 
+             'Cuire quinoa, mélanger avec légumes et feta, assaisonner', 
+             320, 20, 'Facile'),
             
             # Dîners
-            ('Saumon Teriyaki', 'Dîner', 'Asiatique',
-             'Saumon 200g, Brocoli 150g, Riz basmati 100g, Sauce teriyaki 3cs, Graines de sésame, Gingembre',
-             '1. Cuire le riz\n2. Faire revenir le saumon 5 min chaque côté\n3. Cuire le brocoli à la vapeur\n4. Napper de sauce teriyaki et servir',
-             450, 35, 40, 18, 30, 'Moyen', None, 'poisson,protéiné,asiatique'),
+            ('Saumon Teriyaki', 'Dîner', 
+             'Saumon, Brocoli, Riz basmati, Sauce teriyaki, Sésame', 
+             'Cuire riz, faire revenir saumon et brocoli, napper de sauce', 
+             450, 30, 'Moyen'),
             
-            ('Curry Végétarien', 'Dîner', 'Indien',
-             'Lait de coco 400ml, Curcuma 1cs, Gingembre, Légumes de saison 500g, Riz basmati 150g, Coriandre',
-             '1. Faire revenir les épices\n2. Ajouter les légumes\n3. Verser le lait de coco et mijoter 20 min\n4. Servir avec du riz',
-             380, 12, 45, 20, 35, 'Moyen', None, 'végétarien,épicé,confort'),
+            ('Curry Végétarien', 'Dîner', 
+             'Lait de coco, Curcuma, Légumes de saison, Riz, Coriandre', 
+             'Faire revenir épices, ajouter légumes et lait de coco, mijoter', 
+             380, 35, 'Moyen'),
             
-            ('Poke Bowl Thon', 'Dîner', 'Hawaïen',
-             'Thon frais 180g, Riz vinaigré 150g, Avocat 1, Algues wakame 30g, Graines de sésame, Sauce soja',
-             '1. Préparer le riz vinaigré\n2. Couper le thon en dés\n3. Préparer lavocat\n4. Assembler en couches et garnir',
-             400, 40, 35, 12, 20, 'Facile', None, 'poisson,protéiné,frais'),
+            ('Poke Bowl Thon', 'Dîner', 
+             'Thon, Riz vinaigré, Avocat, Algues, Graines, Sauce soja', 
+             'Préparer riz, couper thon et avocat, assembler en couches', 
+             400, 20, 'Facile'),
         ]
         
         # Vérifier si la table est vide avant d'insérer
@@ -267,464 +184,232 @@ class ModernSmartMealPlanner:
             for recipe in sample_recipes:
                 self.cursor.execute('''
                     INSERT INTO recipes 
-                    (name, category, subcategory, ingredients, instructions, 
-                     calories, protein, carbs, fat, prep_time, difficulty, image_url, tags)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (name, category, ingredients, instructions, calories, prep_time, difficulty)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', recipe)
     
-    def create_gradient_frame(self, parent, color1, color2, width, height):
-        """Crée un frame avec un dégradé de couleur"""
-        canvas = tk.Canvas(parent, width=width, height=height, highlightthickness=0)
-        canvas.pack()
-        
-        # Créer un dégradé (simplifié)
-        for i in range(height):
-            ratio = i / height
-            r = int((1-ratio) * int(color1[1:3], 16) + ratio * int(color2[1:3], 16))
-            g = int((1-ratio) * int(color1[3:5], 16) + ratio * int(color2[3:5], 16))
-            b = int((1-ratio) * int(color1[5:7], 16) + ratio * int(color2[5:7], 16))
-            color = f'#{r:02x}{g:02x}{b:02x}'
-            canvas.create_line(0, i, width, i, fill=color)
-        
-        return canvas
-    
-    def create_modern_card(self, parent, title, subtitle, icon, color, command=None, width=280, height=200):
-        """Crée une carte moderne avec effets visuels"""
-        card = tk.Frame(parent, bg=self.colors['card_bg'], width=width, height=height,
-                       relief='flat', highlightthickness=0)
-        card.pack_propagate(False)
-        
-        # Effet hover
-        def on_enter(e):
-            if command:
-                card.configure(bg=self.colors['card_hover'])
-        
-        def on_leave(e):
-            if command:
-                card.configure(bg=self.colors['card_bg'])
-        
-        # Contenu de la carte
-        content_frame = tk.Frame(card, bg=self.colors['card_bg'])
-        content_frame.place(relx=0.5, rely=0.5, anchor='center')
+    def create_card(self, parent, title, subtitle, icon, color, command=None):
+        """Crée une carte moderne"""
+        card = tk.Frame(parent, bg=self.colors['card_bg'], relief='flat', 
+                       highlightbackground=self.colors['primary'], 
+                       highlightthickness=1, bd=0)
         
         # Icône
-        icon_label = tk.Label(content_frame, text=icon, font=('Segoe UI', 42),
+        icon_label = tk.Label(card, text=icon, font=('Segoe UI', 24), 
                              bg=self.colors['card_bg'], fg=color)
-        icon_label.pack(pady=(10, 15))
+        icon_label.pack(pady=(20, 10))
         
         # Titre
-        title_label = tk.Label(content_frame, text=title, font=('Segoe UI', 18, 'bold'),
+        title_label = tk.Label(card, text=title, font=('Segoe UI', 16, 'bold'), 
                               bg=self.colors['card_bg'], fg=self.colors['text_primary'])
         title_label.pack(pady=5)
         
         # Sous-titre
-        subtitle_label = tk.Label(content_frame, text=subtitle, font=('Segoe UI', 12),
+        subtitle_label = tk.Label(card, text=subtitle, font=('Segoe UI', 12), 
                                  bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
-                                 wraplength=220)
-        subtitle_label.pack(pady=(0, 15))
+                                 wraplength=200)
+        subtitle_label.pack(pady=(0, 20))
         
-        # Indicateur d'action
         if command:
-            action_label = tk.Label(content_frame, text="→", font=('Segoe UI', 20, 'bold'),
-                                   bg=self.colors['card_bg'], fg=color)
-            action_label.pack()
-            
-            # Bind events
-            card.bind('<Enter>', on_enter)
-            card.bind('<Leave>', on_leave)
-            for widget in [card, icon_label, title_label, subtitle_label, action_label]:
-                widget.bind('<Button-1>', lambda e: command())
-                widget.configure(cursor='hand2')
-        
-        return card
-    
-    def create_recipe_card(self, parent, recipe_data, width=300, height=380):
-        """Crée une carte de recette moderne avec image"""
-        card = tk.Frame(parent, bg=self.colors['card_bg'], width=width, height=height,
-                       relief='flat', highlightthickness=0)
-        card.pack_propagate(False)
-        
-        # Image de la recette (placeholder)
-        image_frame = tk.Frame(card, bg=self.colors['primary'], height=180)
-        image_frame.pack(fill='x')
-        image_frame.pack_propagate(False)
-        
-        # Icône de catégorie sur l'image
-        category_icon = self.category_icons.get(recipe_data[2], '🍽️')
-        icon_label = tk.Label(image_frame, text=category_icon, font=('Segoe UI', 48),
-                             bg=self.colors['primary'], fg='white')
-        icon_label.place(relx=0.5, rely=0.5, anchor='center')
-        
-        # Badge de catégorie
-        badge = tk.Label(image_frame, text=recipe_data[2], font=('Segoe UI', 10, 'bold'),
-                        bg=self.colors['accent'], fg='black', padx=10, pady=3)
-        badge.place(x=10, y=10)
-        
-        # Contenu texte
-        content_frame = tk.Frame(card, bg=self.colors['card_bg'], padx=20, pady=20)
-        content_frame.pack(fill='both', expand=True)
-        
-        # Nom de la recette
-        name_label = tk.Label(content_frame, text=recipe_data[1], font=('Segoe UI', 16, 'bold'),
-                             bg=self.colors['card_bg'], fg=self.colors['text_primary'],
-                             wraplength=260, justify='left')
-        name_label.pack(anchor='w', pady=(0, 10))
-        
-        # Informations nutritionnelles
-        info_frame = tk.Frame(content_frame, bg=self.colors['card_bg'])
-        info_frame.pack(fill='x', pady=(0, 15))
-        
-        # Calories
-        cal_frame = tk.Frame(info_frame, bg=self.colors['card_bg'])
-        cal_frame.pack(side='left', padx=(0, 15))
-        tk.Label(cal_frame, text="🔥", font=('Segoe UI', 12),
-                bg=self.colors['card_bg'], fg=self.colors['danger']).pack(side='left')
-        tk.Label(cal_frame, text=f"{recipe_data[6]} cal", font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(side='left', padx=5)
-        
-        # Temps
-        time_frame = tk.Frame(info_frame, bg=self.colors['card_bg'])
-        time_frame.pack(side='left')
-        tk.Label(time_frame, text="⏱️", font=('Segoe UI', 12),
-                bg=self.colors['card_bg'], fg=self.colors['warning']).pack(side='left')
-        tk.Label(time_frame, text=f"{recipe_data[11]} min", font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(side='left', padx=5)
-        
-        # Difficulté
-        diff_frame = tk.Frame(info_frame, bg=self.colors['card_bg'])
-        diff_frame.pack(side='left', padx=15)
-        tk.Label(diff_frame, text="🎯", font=('Segoe UI', 12),
-                bg=self.colors['card_bg'], fg=self.colors['success']).pack(side='left')
-        tk.Label(diff_frame, text=recipe_data[12], font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(side='left', padx=5)
-        
-        # Ingrédients (abrévié)
-        ingredients_text = recipe_data[4][:60] + "..." if len(recipe_data[4]) > 60 else recipe_data[4]
-        tk.Label(content_frame, text=ingredients_text, font=('Segoe UI', 10),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
-                wraplength=260, justify='left', anchor='w').pack(anchor='w', pady=(0, 15))
-        
-        # Bouton Voir plus
-        view_btn = tk.Label(content_frame, text="Voir la recette →", font=('Segoe UI', 11, 'bold'),
-                           bg=self.colors['primary'], fg='white',
-                           cursor='hand2', padx=20, pady=8)
-        view_btn.pack(anchor='e')
-        view_btn.bind('<Button-1>', lambda e: self.show_recipe_detail(recipe_data[0]))
-        
-        # Effet hover
-        def on_enter(e):
-            card.configure(bg=self.colors['card_hover'])
-            content_frame.configure(bg=self.colors['card_hover'])
-            info_frame.configure(bg=self.colors['card_hover'])
-            for widget in [cal_frame, time_frame, diff_frame, name_label]:
-                widget.configure(bg=self.colors['card_hover'])
-        
-        def on_leave(e):
-            card.configure(bg=self.colors['card_bg'])
-            content_frame.configure(bg=self.colors['card_bg'])
-            info_frame.configure(bg=self.colors['card_bg'])
-            for widget in [cal_frame, time_frame, diff_frame, name_label]:
-                widget.configure(bg=self.colors['card_bg'])
-        
-        card.bind('<Enter>', on_enter)
-        card.bind('<Leave>', on_leave)
+            card.bind('<Button-1>', lambda e: command())
+            icon_label.bind('<Button-1>', lambda e: command())
+            title_label.bind('<Button-1>', lambda e: command())
+            subtitle_label.bind('<Button-1>', lambda e: command())
+            card.configure(cursor='hand2')
+            icon_label.configure(cursor='hand2')
+            title_label.configure(cursor='hand2')
+            subtitle_label.configure(cursor='hand2')
         
         return card
     
     def show_login_screen(self):
-        """Affiche l'écran de connexion moderne avec dégradé"""
+        """Affiche l'écran de connexion moderne"""
         self.clear_window()
         
-        # Frame principal avec dégradé
+        # Frame principal avec dégradé simulé
         main_frame = tk.Frame(self.root, bg=self.colors['background'])
         main_frame.pack(fill='both', expand=True)
         
-        # Créer un effet de dégradé
-        gradient_canvas = self.create_gradient_frame(
-            main_frame, 
-            self.colors['gradient_start'], 
-            self.colors['gradient_end'],
-            1600, 1000
+        # Container central
+        container = tk.Frame(main_frame, bg=self.colors['background'])
+        container.place(relx=0.5, rely=0.5, anchor='center')
+        
+        # Logo et titre
+        logo_label = tk.Label(container, text="🍽️", font=('Segoe UI', 48),
+                             bg=self.colors['background'], fg=self.colors['primary'])
+        logo_label.pack(pady=(0, 10))
+        
+        title_label = tk.Label(container, text="SmartMeal-Planner", 
+                              font=('Segoe UI', 32, 'bold'), 
+                              bg=self.colors['background'], fg=self.colors['text_primary'])
+        title_label.pack(pady=(0, 5))
+        
+        subtitle_label = tk.Label(container, text="Repas sains & intelligents", 
+                                 font=('Segoe UI', 16), 
+                                 bg=self.colors['background'], fg=self.colors['text_secondary'])
+        subtitle_label.pack(pady=(0, 50))
+        
+        # Cartes d'action
+        actions_frame = tk.Frame(container, bg=self.colors['background'])
+        actions_frame.pack(pady=20)
+        
+        # Carte Connexion
+        login_card = self.create_card(
+            actions_frame, "Se connecter", "Accédez à votre compte", "🔐", self.colors['primary_light'],
+            self.show_login_form
         )
-        gradient_canvas.pack(fill='both', expand=True)
+        login_card.grid(row=0, column=0, padx=15, pady=10, sticky='nsew')
         
-        # Overlay sombre
-        overlay = tk.Frame(gradient_canvas, bg='#1A1A2E90')  # Semi-transparent
-        overlay.place(relwidth=1, relheight=1)
+        # Carte Inscription
+        register_card = self.create_card(
+            actions_frame, "Créer un compte", "Commencez votre voyage santé", "🚀", self.colors['accent'],
+            self.show_register_form
+        )
+        register_card.grid(row=0, column=1, padx=15, pady=10, sticky='nsew')
         
-        # Contenu centré
-        content_frame = tk.Frame(overlay, bg='transparent')
-        content_frame.place(relx=0.5, rely=0.5, anchor='center')
-        
-        # Logo et titre avec animation
-        logo_label = tk.Label(content_frame, text="🍽️", font=('Segoe UI', 72),
-                             bg='transparent', fg=self.colors['text_primary'])
-        logo_label.pack(pady=(0, 20))
-        
-        # Titre avec gradient text
-        title_frame = tk.Frame(content_frame, bg='transparent')
-        title_frame.pack(pady=(0, 10))
-        
-        tk.Label(title_frame, text="SmartMeal", font=self.title_font,
-                bg='transparent', fg=self.colors['primary']).pack(side='left')
-        tk.Label(title_frame, text="Planner", font=self.title_font,
-                bg='transparent', fg=self.colors['text_primary']).pack(side='left', padx=5)
-        
-        tk.Label(content_frame, text="Votre compagnon nutritionnel intelligent", 
-                font=self.subtitle_font, bg='transparent', fg=self.colors['text_secondary']).pack(pady=(0, 60))
-        
-        # Cartes d'action en grille
-        actions_frame = tk.Frame(content_frame, bg='transparent')
-        actions_frame.pack()
-        
-        actions = [
-            ("🔐", "Se connecter", "Accédez à votre espace personnel", self.show_login_form, self.colors['primary']),
-            ("🚀", "Créer un compte", "Commencez votre transformation", self.show_register_form, self.colors['secondary']),
-            ("🎯", "Mode Démo", "Découvrez sans engagement", self.demo_mode, self.colors['accent'])
-        ]
-        
-        for i, (icon, title, subtitle, command, color) in enumerate(actions):
-            card = self.create_modern_card(actions_frame, title, subtitle, icon, color, command)
-            card.grid(row=0, column=i, padx=15, pady=10)
+        # Carte Démo
+        demo_card = self.create_card(
+            actions_frame, "Mode Démo", "Essayez sans compte", "🎯", self.colors['primary'],
+            self.demo_mode
+        )
+        demo_card.grid(row=0, column=2, padx=15, pady=10, sticky='nsew')
         
         # Footer
-        footer = tk.Frame(overlay, bg='transparent')
-        footer.pack(side='bottom', pady=30)
-        
-        tk.Label(footer, text="🍎 Mangez Mieux • 🏃‍♂️ Vivez Mieux • 💪 Soyez Mieux",
-                font=('Segoe UI', 12), bg='transparent', fg=self.colors['text_muted']).pack()
+        footer_label = tk.Label(main_frame, text="🍎 Mangez mieux. Vivez mieux. 🏃‍♂️", 
+                               font=('Segoe UI', 12), 
+                               bg=self.colors['background'], fg=self.colors['text_secondary'])
+        footer_label.pack(side='bottom', pady=20)
     
     def show_login_form(self):
-        """Affiche le formulaire de connexion élégant"""
+        """Affiche le formulaire de connexion moderne"""
         self.clear_window()
         
-        # Frame principal avec fond
         main_frame = tk.Frame(self.root, bg=self.colors['background'])
-        main_frame.pack(fill='both', expand=True)
+        main_frame.pack(fill='both', expand=True, padx=50, pady=50)
         
-        # Sidebar décorative
-        sidebar = tk.Frame(main_frame, bg=self.colors['primary'], width=400)
-        sidebar.pack(side='left', fill='y')
-        sidebar.pack_propagate(False)
-        
-        # Contenu sidebar
-        sidebar_content = tk.Frame(sidebar, bg=self.colors['primary'])
-        sidebar_content.place(relx=0.5, rely=0.5, anchor='center')
-        
-        tk.Label(sidebar_content, text="🍽️", font=('Segoe UI', 72),
-                bg=self.colors['primary'], fg='white').pack(pady=(0, 30))
-        
-        tk.Label(sidebar_content, text="Content de vous revoir !", 
-                font=self.heading_font, bg=self.colors['primary'], fg='white').pack(pady=(0, 15))
-        
-        tk.Label(sidebar_content, text="Accédez à vos plans, recettes\net suivez votre progression", 
-                font=self.subtitle_font, bg=self.colors['primary'], fg='white', 
-                justify='center').pack()
-        
-        # Formulaire
-        form_frame = tk.Frame(main_frame, bg=self.colors['background'], padx=80)
-        form_frame.pack(side='right', fill='both', expand=True)
-        
-        # En-tête formulaire
-        header_frame = tk.Frame(form_frame, bg=self.colors['background'])
-        header_frame.pack(fill='x', pady=(60, 40))
-        
-        # Bouton retour
-        back_btn = tk.Label(header_frame, text="←", font=('Segoe UI', 24),
-                           bg=self.colors['background'], fg=self.colors['text_secondary'],
+        # Retour
+        back_btn = tk.Label(main_frame, text="← Retour", font=('Segoe UI', 12),
+                           bg=self.colors['background'], fg=self.colors['primary_light'],
                            cursor='hand2')
         back_btn.bind('<Button-1>', lambda e: self.show_login_screen())
-        back_btn.pack(side='left')
+        back_btn.pack(anchor='nw')
         
-        tk.Label(header_frame, text="Connexion", font=self.heading_font,
-                bg=self.colors['background'], fg=self.colors['text_primary']).pack(side='left', padx=20)
+        # Container formulaire
+        form_container = tk.Frame(main_frame, bg=self.colors['background'])
+        form_container.place(relx=0.5, rely=0.5, anchor='center')
         
-        # Formulaire
-        form_content = tk.Frame(form_frame, bg=self.colors['background'])
-        form_content.pack(fill='x', pady=20)
+        # Titre
+        tk.Label(form_container, text="🔐 Connexion", font=('Segoe UI', 28, 'bold'),
+                bg=self.colors['background'], fg=self.colors['text_primary']).pack(pady=(0, 30))
         
-        # Champ email
-        tk.Label(form_content, text="Email", font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['background'], fg=self.colors['text_primary']).pack(anchor='w', pady=(20, 8))
+        # Carte formulaire
+        form_card = tk.Frame(form_container, bg=self.colors['card_bg'], relief='flat',
+                            padx=40, pady=40)
+        form_card.pack(pady=20)
         
-        email_frame = tk.Frame(form_content, bg=self.colors['card_bg'], height=50)
-        email_frame.pack(fill='x', pady=(0, 20))
-        email_frame.pack_propagate(False)
+        # Champs
+        tk.Label(form_card, text="Email", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w', pady=(10, 5))
         
-        self.email_entry = tk.Entry(email_frame, font=self.body_font, bg=self.colors['card_bg'],
-                                   fg=self.colors['text_primary'], bd=0, insertbackground='white')
-        self.email_entry.pack(fill='both', expand=True, padx=15)
-        self.email_entry.insert(0, "votre@email.com")
+        self.email_entry = ttk.Entry(form_card, width=30, font=('Segoe UI', 12))
+        self.email_entry.pack(pady=5, fill='x')
         
-        # Champ mot de passe
-        tk.Label(form_content, text="Mot de passe", font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['background'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 8))
+        tk.Label(form_card, text="Mot de passe", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w', pady=(15, 5))
         
-        password_frame = tk.Frame(form_content, bg=self.colors['card_bg'], height=50)
-        password_frame.pack(fill='x', pady=(0, 30))
-        password_frame.pack_propagate(False)
-        
-        self.password_entry = tk.Entry(password_frame, font=self.body_font, bg=self.colors['card_bg'],
-                                      fg=self.colors['text_primary'], bd=0, show='•', 
-                                      insertbackground='white')
-        self.password_entry.pack(fill='both', expand=True, padx=15)
+        self.password_entry = ttk.Entry(form_card, width=30, show='•', font=('Segoe UI', 12))
+        self.password_entry.pack(pady=5, fill='x')
         
         # Bouton connexion
-        login_btn = tk.Label(form_content, text="Se connecter", font=self.button_font,
-                            bg=self.colors['primary'], fg='white',
-                            cursor='hand2', padx=40, pady=15)
-        login_btn.bind('<Button-1>', lambda e: self.login())
-        login_btn.pack(pady=(10, 30))
+        login_btn = ttk.Button(form_card, text="Se connecter", style='Primary.TButton',
+                              command=self.login)
+        login_btn.pack(pady=30, fill='x')
         
         # Lien inscription
-        register_link = tk.Label(form_content, text="Pas encore de compte ? Créer un compte →", 
-                                font=('Segoe UI', 11), bg=self.colors['background'], 
+        register_link = tk.Label(form_card, text="Pas de compte ? Créer un compte", 
+                                font=('Segoe UI', 10), bg=self.colors['card_bg'], 
                                 fg=self.colors['primary_light'], cursor='hand2')
         register_link.bind('<Button-1>', lambda e: self.show_register_form())
         register_link.pack()
     
     def show_register_form(self):
-        """Affiche le formulaire d'inscription élégant"""
+        """Affiche le formulaire d'inscription moderne"""
         self.clear_window()
         
         main_frame = tk.Frame(self.root, bg=self.colors['background'])
-        main_frame.pack(fill='both', expand=True)
+        main_frame.pack(fill='both', expand=True, padx=50, pady=50)
         
-        # Formulaire à gauche
-        form_frame = tk.Frame(main_frame, bg=self.colors['background'], padx=80)
-        form_frame.pack(side='left', fill='both', expand=True)
-        
-        # En-tête
-        header_frame = tk.Frame(form_frame, bg=self.colors['background'])
-        header_frame.pack(fill='x', pady=(60, 40))
-        
-        back_btn = tk.Label(header_frame, text="←", font=('Segoe UI', 24),
-                           bg=self.colors['background'], fg=self.colors['text_secondary'],
+        # Retour
+        back_btn = tk.Label(main_frame, text="← Retour", font=('Segoe UI', 12),
+                           bg=self.colors['background'], fg=self.colors['primary_light'],
                            cursor='hand2')
         back_btn.bind('<Button-1>', lambda e: self.show_login_screen())
-        back_btn.pack(side='left')
+        back_btn.pack(anchor='nw')
         
-        tk.Label(header_frame, text="Créer un compte", font=self.heading_font,
-                bg=self.colors['background'], fg=self.colors['text_primary']).pack(side='left', padx=20)
+        # Container formulaire
+        form_container = tk.Frame(main_frame, bg=self.colors['background'])
+        form_container.place(relx=0.5, rely=0.5, anchor='center')
         
-        # Formulaire à deux colonnes
-        form_grid = tk.Frame(form_frame, bg=self.colors['background'])
-        form_grid.pack(fill='x', pady=20)
+        # Titre
+        tk.Label(form_container, text="🚀 Créer un compte", font=('Segoe UI', 28, 'bold'),
+                bg=self.colors['background'], fg=self.colors['text_primary']).pack(pady=(0, 30))
         
-        # Champs de base
-        fields = [
-            ("Prénom", "firstname"),
-            ("Nom", "lastname"),
-            ("Email", "email"),
-            ("Mot de passe", "password"),
-            ("Âge", "age"),
-            ("Taille (cm)", "height"),
-            ("Poids (kg)", "weight")
-        ]
+        # Carte formulaire
+        form_card = tk.Frame(form_container, bg=self.colors['card_bg'], relief='flat',
+                            padx=40, pady=40)
+        form_card.pack(pady=20)
         
-        self.register_entries = {}
+        # Grille pour les champs
+        form_grid = tk.Frame(form_card, bg=self.colors['card_bg'])
+        form_grid.pack(fill='x')
         
-        for i, (label_text, field_name) in enumerate(fields):
-            row = i // 2
-            col = i % 2
-            
-            frame = tk.Frame(form_grid, bg=self.colors['background'])
-            frame.grid(row=row, column=col, padx=15, pady=10, sticky='ew')
-            
-            tk.Label(frame, text=label_text, font=('Segoe UI', 11, 'bold'),
-                    bg=self.colors['background'], fg=self.colors['text_secondary']).pack(anchor='w')
-            
-            entry_frame = tk.Frame(frame, bg=self.colors['card_bg'], height=45)
-            entry_frame.pack(fill='x', pady=(5, 0))
-            entry_frame.pack_propagate(False)
-            
-            entry = tk.Entry(entry_frame, font=self.body_font, bg=self.colors['card_bg'],
-                            fg=self.colors['text_primary'], bd=0, insertbackground='white')
-            if field_name == 'password':
-                entry.config(show='•')
-            entry.pack(fill='both', expand=True, padx=15)
-            
-            self.register_entries[field_name] = entry
+        # Ligne 1 - Prénom et Nom
+        tk.Label(form_grid, text="Prénom", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=0, sticky='w', pady=10)
+        tk.Label(form_grid, text="Nom", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=1, sticky='w', pady=10, padx=(20,0))
         
-        # Objectif
-        tk.Label(form_grid, text="Objectif", font=('Segoe UI', 11, 'bold'),
-                bg=self.colors['background'], fg=self.colors['text_secondary']).grid(row=4, column=0, sticky='w', padx=15, pady=(20, 5))
+        self.firstname_entry = ttk.Entry(form_grid, width=20, font=('Segoe UI', 12))
+        self.firstname_entry.grid(row=1, column=0, sticky='w')
         
-        goal_frame = tk.Frame(form_grid, bg=self.colors['card_bg'])
-        goal_frame.grid(row=5, column=0, columnspan=2, sticky='ew', padx=15, pady=(0, 20))
+        self.lastname_entry = ttk.Entry(form_grid, width=20, font=('Segoe UI', 12))
+        self.lastname_entry.grid(row=1, column=1, sticky='w', padx=(20,0))
         
-        self.goal_var = tk.StringVar(value="maintenir")
-        goals = [("💪 Prise de masse", "gain"), ("⚖️ Maintenir", "maintenir"), ("🔥 Perte de poids", "loss")]
+        # Ligne 2 - Email
+        tk.Label(form_grid, text="Email", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=2, column=0, sticky='w', pady=(20,5))
+        self.reg_email_entry = ttk.Entry(form_grid, width=42, font=('Segoe UI', 12))
+        self.reg_email_entry.grid(row=3, column=0, columnspan=2, sticky='we')
         
-        for text, value in goals:
-            btn = tk.Radiobutton(goal_frame, text=text, variable=self.goal_var, value=value,
-                                font=self.body_font, bg=self.colors['card_bg'],
-                                fg=self.colors['text_primary'], selectcolor=self.colors['primary'])
-            btn.pack(side='left', padx=10)
+        # Ligne 3 - Mot de passe
+        tk.Label(form_grid, text="Mot de passe", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=4, column=0, sticky='w', pady=(20,5))
+        self.reg_password_entry = ttk.Entry(form_grid, width=42, show='•', font=('Segoe UI', 12))
+        self.reg_password_entry.grid(row=5, column=0, columnspan=2, sticky='we')
         
-        # Niveau d'activité
-        tk.Label(form_grid, text="Niveau d'activité", font=('Segoe UI', 11, 'bold'),
-                bg=self.colors['background'], fg=self.colors['text_secondary']).grid(row=6, column=0, sticky='w', padx=15, pady=(0, 5))
+        # Ligne 4 - Taille et Poids
+        tk.Label(form_grid, text="Taille (cm)", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=6, column=0, sticky='w', pady=(20,5))
+        tk.Label(form_grid, text="Poids (kg)", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=6, column=1, sticky='w', pady=(20,5), padx=(20,0))
         
-        activity_frame = tk.Frame(form_grid, bg=self.colors['card_bg'])
-        activity_frame.grid(row=7, column=0, columnspan=2, sticky='ew', padx=15, pady=(0, 30))
+        self.height_entry = ttk.Entry(form_grid, width=20, font=('Segoe UI', 12))
+        self.height_entry.grid(row=7, column=0, sticky='w')
         
-        self.activity_var = tk.StringVar(value="moderate")
-        activities = [
-            ("🛋️ Sédentaire", "sedentary"),
-            ("🚶‍♂️ Léger", "light"),
-            ("🏃‍♂️ Modéré", "moderate"),
-            ("💪 Actif", "active"),
-            ("🔥 Très actif", "very_active")
-        ]
+        self.weight_entry = ttk.Entry(form_grid, width=20, font=('Segoe UI', 12))
+        self.weight_entry.grid(row=7, column=1, sticky='w', padx=(20,0))
         
-        for text, value in activities:
-            btn = tk.Radiobutton(activity_frame, text=text, variable=self.activity_var, value=value,
-                                font=self.body_font, bg=self.colors['card_bg'],
-                                fg=self.colors['text_primary'], selectcolor=self.colors['primary'])
-            btn.pack(side='left', padx=10)
-        
-        # Bouton d'inscription
-        register_btn = tk.Label(form_grid, text="Créer mon compte", font=self.button_font,
-                               bg=self.colors['primary'], fg='white',
-                               cursor='hand2', padx=40, pady=15)
-        register_btn.bind('<Button-1>', lambda e: self.register())
-        register_btn.grid(row=8, column=0, columnspan=2, pady=20)
+        # Bouton inscription
+        register_btn = ttk.Button(form_card, text="Créer mon compte", style='Primary.TButton',
+                                 command=self.register)
+        register_btn.pack(pady=30, fill='x')
         
         # Lien connexion
-        login_link = tk.Label(form_grid, text="Déjà un compte ? Se connecter →", 
-                             font=('Segoe UI', 11), bg=self.colors['background'], 
+        login_link = tk.Label(form_card, text="Déjà un compte ? Se connecter", 
+                             font=('Segoe UI', 10), bg=self.colors['card_bg'], 
                              fg=self.colors['primary_light'], cursor='hand2')
         login_link.bind('<Button-1>', lambda e: self.show_login_form())
-        login_link.grid(row=9, column=0, columnspan=2, pady=10)
-        
-        # Sidebar à droite
-        sidebar = tk.Frame(main_frame, bg=self.colors['card_bg'], width=300)
-        sidebar.pack(side='right', fill='y')
-        sidebar.pack_propagate(False)
-        
-        sidebar_content = tk.Frame(sidebar, bg=self.colors['card_bg'], padx=30)
-        sidebar_content.pack(fill='both', expand=True)
-        
-        tk.Label(sidebar_content, text="🎯 Bienvenue !", font=self.heading_font,
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(pady=(40, 20))
-        
-        benefits = [
-            ("📊", "Suivi personnalisé de vos progrès"),
-            ("🍽️", "Plans de repas adaptés à vos objectifs"),
-            ("📱", "Accès depuis tous vos appareils"),
-            ("👨‍⚕️", "Recommandations nutritionnelles expertes"),
-            ("💾", "Sauvegarde illimitée de vos plans")
-        ]
-        
-        for icon, text in benefits:
-            frame = tk.Frame(sidebar_content, bg=self.colors['card_bg'])
-            frame.pack(fill='x', pady=10)
-            tk.Label(frame, text=icon, font=('Segoe UI', 20),
-                    bg=self.colors['card_bg'], fg=self.colors['primary']).pack(side='left')
-            tk.Label(frame, text=text, font=self.body_font,
-                    bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
-                    wraplength=200).pack(side='left', padx=10)
+        login_link.pack()
     
     def login(self):
         """Gère la connexion"""
@@ -732,7 +417,7 @@ class ModernSmartMealPlanner:
         password = self.password_entry.get()
         
         if not email or not password:
-            messagebox.showerror("Erreur", "Veuillez remplir tous les champs")
+            messagebox.showerror("Erreur", "📝 Veuillez remplir tous les champs")
             return
         
         self.cursor.execute('SELECT * FROM users WHERE email = ? AND password = ?', (email, password))
@@ -745,120 +430,101 @@ class ModernSmartMealPlanner:
                 'lastname': user[2],
                 'email': user[3],
                 'height': user[5],
-                'weight': user[6],
-                'age': user[7],
-                'goal': user[8],
-                'activity_level': user[9]
+                'weight': user[6]
             }
-            messagebox.showinfo("Succès", f"Bienvenue {user[1]} !")
+            messagebox.showinfo("Succès", f"🎉 Bienvenue {user[1]} !")
             self.show_dashboard()
         else:
-            messagebox.showerror("Erreur", "Email ou mot de passe incorrect")
+            messagebox.showerror("Erreur", "❌ Email ou mot de passe incorrect")
     
     def register(self):
         """Gère l'inscription"""
+        firstname = self.firstname_entry.get()
+        lastname = self.lastname_entry.get()
+        email = self.reg_email_entry.get()
+        password = self.reg_password_entry.get()
+        height = self.height_entry.get()
+        weight = self.weight_entry.get()
+        
+        if not all([firstname, lastname, email, password, height, weight]):
+            messagebox.showerror("Erreur", "📝 Veuillez remplir tous les champs")
+            return
+        
         try:
-            data = {k: v.get() for k, v in self.register_entries.items()}
-            
-            if not all(data.values()):
-                messagebox.showerror("Erreur", "Veuillez remplir tous les champs")
-                return
+            height_int = int(height)
+            weight_float = float(weight)
             
             self.cursor.execute('''
-                INSERT INTO users (firstname, lastname, email, password, age, height, weight, goal, activity_level)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (data['firstname'], data['lastname'], data['email'], data['password'],
-                  int(data['age']), int(data['height']), float(data['weight']),
-                  self.goal_var.get(), self.activity_var.get()))
+                INSERT INTO users (firstname, lastname, email, password, height, weight)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (firstname, lastname, email, password, height_int, weight_float))
             self.conn.commit()
             
-            messagebox.showinfo("Succès", "Compte créé avec succès !")
+            messagebox.showinfo("Succès", "🎉 Compte créé avec succès !")
             self.show_login_screen()
             
         except sqlite3.IntegrityError:
-            messagebox.showerror("Erreur", "Cet email est déjà utilisé")
+            messagebox.showerror("Erreur", "📧 Cet email est déjà utilisé")
         except ValueError:
-            messagebox.showerror("Erreur", "Veuillez entrer des valeurs valides")
-        except Exception as e:
-            messagebox.showerror("Erreur", f"Une erreur est survenue: {str(e)}")
+            messagebox.showerror("Erreur", "🔢 Taille et poids doivent être des nombres valides")
     
     def demo_mode(self):
         """Mode démo sans connexion"""
-        self.current_user = {
-            'id': 0,
-            'firstname': 'Invité',
-            'lastname': 'Demo',
-            'email': 'demo@example.com',
-            'height': 175,
-            'weight': 70,
-            'age': 30,
-            'goal': 'maintenir',
-            'activity_level': 'moderate'
-        }
+        self.current_user = {'firstname': 'Invité', 'id': 0}
         self.show_dashboard()
     
     def show_dashboard(self):
         """Affiche le tableau de bord moderne"""
         self.clear_window()
         
-        # Sidebar
-        sidebar = tk.Frame(self.root, bg=self.colors['card_bg'], width=280)
+        # Barre latérale
+        sidebar = tk.Frame(self.root, bg=self.colors['card_bg'], width=250)
         sidebar.pack(side='left', fill='y')
         sidebar.pack_propagate(False)
         
         # Logo sidebar
-        logo_frame = tk.Frame(sidebar, bg=self.colors['card_bg'], height=120)
-        logo_frame.pack(fill='x')
-        logo_frame.pack_propagate(False)
+        tk.Label(sidebar, text="🍽️", font=('Segoe UI', 24),
+                bg=self.colors['card_bg'], fg=self.colors['primary']).pack(pady=(30, 10))
         
-        tk.Label(logo_frame, text="🍽️", font=('Segoe UI', 36),
-                bg=self.colors['card_bg'], fg=self.colors['primary']).place(relx=0.5, rely=0.5, anchor='center')
+        tk.Label(sidebar, text="SmartMeal", font=('Segoe UI', 16, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(pady=(0, 30))
         
         # Menu sidebar
-        menu_frame = tk.Frame(sidebar, bg=self.colors['card_bg'])
-        menu_frame.pack(fill='both', expand=True, padx=20)
-        
         menu_items = [
-            ("📊", "Tableau de bord", self.show_dashboard),
-            ("🍽️", "Générateur de repas", self.show_meal_generator),
-            ("📖", "Recettes", self.show_recipes),
-            ("💾", "Plans sauvegardés", self.show_saved_plans),
-            ("⭐", "Favoris", self.show_favorites),
-            ("📈", "Progression", self.show_progress),
-            ("👤", "Profil", self.show_profile)
+            ("📊 Tableau de bord", self.show_dashboard),
+            ("🍽️ Générer repas", self.show_meal_generator),
+            ("📖 Recettes", self.show_recipes),
+            ("💾 Mes inscriptions", self.show_saved_plans),
+            ("👤 Profil", self.show_profile),
+            ("🚪 Déconnexion", self.show_login_screen)
         ]
         
-        for icon, text, command in menu_items:
-            btn = self.create_menu_button(menu_frame, icon, text, command)
-            btn.pack(fill='x', pady=5)
-        
-        # Bouton déconnexion
-        logout_btn = self.create_menu_button(menu_frame, "🚪", "Déconnexion", self.show_login_screen)
-        logout_btn.pack(side='bottom', fill='x', pady=20)
+        for text, command in menu_items:
+            btn = tk.Label(sidebar, text=text, font=('Segoe UI', 12),
+                          bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
+                          cursor='hand2', padx=20, pady=15)
+            btn.bind('<Button-1>', lambda e, cmd=command: cmd())
+            btn.pack(fill='x')
+            btn.bind('<Enter>', lambda e: e.widget.configure(bg=self.colors['primary'], fg='white'))
+            btn.bind('<Leave>', lambda e: e.widget.configure(bg=self.colors['card_bg'], fg=self.colors['text_secondary']))
         
         # Contenu principal
         main_content = tk.Frame(self.root, bg=self.colors['background'])
-        main_content.pack(side='right', fill='both', expand=True, padx=30, pady=30)
+        main_content.pack(side='right', fill='both', expand=True, padx=20, pady=20)
         
-        # Header
+        # En-tête
         header = tk.Frame(main_content, bg=self.colors['background'])
         header.pack(fill='x', pady=(0, 30))
         
         tk.Label(header, text=f"👋 Bonjour, {self.current_user['firstname']} !", 
-                font=self.heading_font, bg=self.colors['background'], 
+                font=('Segoe UI', 24, 'bold'), bg=self.colors['background'], 
                 fg=self.colors['text_primary']).pack(side='left')
-        
-        # Date
-        date_label = tk.Label(header, text=datetime.now().strftime("%d %B %Y"),
-                             font=('Segoe UI', 12), bg=self.colors['background'],
-                             fg=self.colors['text_secondary'])
-        date_label.pack(side='right')
         
         # Cartes de statistiques
         stats_frame = tk.Frame(main_content, bg=self.colors['background'])
-        stats_frame.pack(fill='x', pady=(0, 40))
+        stats_frame.pack(fill='x', pady=(0, 30))
         
-        # Récupérer les statistiques
+        # Compter le nombre d'inscriptions de l'utilisateur
         self.cursor.execute('SELECT COUNT(*) FROM saved_plans WHERE user_id = ?', 
                           (self.current_user['id'],))
         plan_count = self.cursor.fetchone()[0]
@@ -866,771 +532,168 @@ class ModernSmartMealPlanner:
         self.cursor.execute('SELECT COUNT(*) FROM recipes')
         recipe_count = self.cursor.fetchone()[0]
         
-        self.cursor.execute('SELECT COUNT(*) FROM favorites WHERE user_id = ?',
-                          (self.current_user['id'],))
-        favorite_count = self.cursor.fetchone()[0]
-        
-        stats_data = [
-            ("📅", str(plan_count), "Plans", self.colors['primary']),
-            ("🍽️", str(recipe_count), "Recettes", self.colors['secondary']),
-            ("⭐", str(favorite_count), "Favoris", self.colors['accent']),
-            ("🎯", "85%", "Objectif", self.colors['success'])
+        stats_cards = [
+            ("📅", str(plan_count), "Plans sauvegardés", "#10b981"),
+            ("🍽️", str(recipe_count), "Recettes disponibles", "#f59e0b"),
+            ("🔥", "45", "Jours suivis", "#ef4444"),
+            ("🎯", "85%", "Objectif atteint", "#8b5cf6")
         ]
         
-        for i, (icon, value, label, color) in enumerate(stats_data):
-            card = self.create_stat_card(stats_frame, icon, value, label, color)
+        for i, (icon, value, text, color) in enumerate(stats_cards):
+            card = self.create_stats_card(stats_frame, icon, value, text, color)
             card.grid(row=0, column=i, padx=10, sticky='nsew')
         
-        # Section recommandations
-        tk.Label(main_content, text="🔥 Recommandations pour vous", 
-                font=('Segoe UI', 18, 'bold'), bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(20, 15))
-        
-        # Récupérer des recettes aléatoires
-        self.cursor.execute('SELECT * FROM recipes ORDER BY RANDOM() LIMIT 3')
-        random_recipes = self.cursor.fetchall()
-        
-        recipes_frame = tk.Frame(main_content, bg=self.colors['background'])
-        recipes_frame.pack(fill='x', pady=(0, 40))
-        
-        for i, recipe in enumerate(random_recipes):
-            card = self.create_recipe_card(recipes_frame, recipe, width=320)
-            card.grid(row=0, column=i, padx=10)
-        
         # Actions rapides
-        tk.Label(main_content, text="⚡ Actions rapides", 
-                font=('Segoe UI', 18, 'bold'), bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 15))
+        tk.Label(main_content, text="🚀 Actions rapides", font=('Segoe UI', 18, 'bold'),
+                bg=self.colors['background'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 15))
         
         actions_frame = tk.Frame(main_content, bg=self.colors['background'])
-        actions_frame.pack(fill='x')
+        actions_frame.pack(fill='x', pady=(0, 30))
         
         quick_actions = [
-            ("🎯", "Générer un plan", "Plan personnalisé 7 jours", self.show_meal_generator),
-            ("🔍", "Rechercher", "Trouver des recettes", self.show_recipe_search),
-            ("📋", "Voir mes plans", "Plans sauvegardés", self.show_saved_plans),
-            ("🍎", "Conseils santé", "Astuces nutrition", self.show_health_tips)
+            ("🍽️ Générer un plan", "Plan personnalisé 7 jours", self.show_meal_generator),
+            ("📖 Voir recettes", f"{recipe_count} recettes santé", self.show_recipes),
+            ("💾 Mes inscriptions", "Voir plans sauvegardés", self.show_saved_plans),
+            ("🔍 Recherche avancée", "Recettes par critères", self.show_recipe_search)
         ]
         
-        for i, (icon, title, subtitle, command) in enumerate(quick_actions):
-            card = self.create_quick_action_card(actions_frame, icon, title, subtitle, command)
-            card.grid(row=0, column=i, padx=10)
-    
-    def create_menu_button(self, parent, icon, text, command):
-        """Crée un bouton de menu moderne"""
-        btn = tk.Frame(parent, bg=self.colors['card_bg'], height=50)
-        btn.pack_propagate(False)
+        for i, (title, subtitle, command) in enumerate(quick_actions):
+            card = self.create_card(actions_frame, title, subtitle, "→", self.colors['primary'], command)
+            card.grid(row=0, column=i, padx=10, sticky='nsew')
         
-        def on_enter(e):
-            btn.configure(bg=self.colors['card_hover'])
-            icon_label.configure(bg=self.colors['card_hover'])
-            text_label.configure(bg=self.colors['card_hover'])
+        # Derniers plans sauvegardés
+        tk.Label(main_content, text="📋 Dernières inscriptions", font=('Segoe UI', 18, 'bold'),
+                bg=self.colors['background'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 15))
         
-        def on_leave(e):
-            btn.configure(bg=self.colors['card_bg'])
-            icon_label.configure(bg=self.colors['card_bg'])
-            text_label.configure(bg=self.colors['card_bg'])
+        plans_frame = tk.Frame(main_content, bg=self.colors['background'])
+        plans_frame.pack(fill='both', expand=True)
         
-        # Contenu
-        icon_label = tk.Label(btn, text=icon, font=('Segoe UI', 18),
-                             bg=self.colors['card_bg'], fg=self.colors['text_secondary'])
-        icon_label.pack(side='left', padx=20)
+        # Récupérer les 3 derniers plans sauvegardés
+        self.cursor.execute('''
+            SELECT plan_name, days_count, created_at 
+            FROM saved_plans 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT 3
+        ''', (self.current_user['id'],))
         
-        text_label = tk.Label(btn, text=text, font=('Segoe UI', 12),
-                             bg=self.colors['card_bg'], fg=self.colors['text_primary'])
-        text_label.pack(side='left', fill='y')
+        recent_plans = self.cursor.fetchall()
         
-        # Bind events
-        btn.bind('<Enter>', on_enter)
-        btn.bind('<Leave>', on_leave)
-        btn.bind('<Button-1>', lambda e: command())
-        
-        for widget in [btn, icon_label, text_label]:
-            widget.bind('<Button-1>', lambda e: command())
-            widget.configure(cursor='hand2')
-        
-        return btn
-    
-    def create_stat_card(self, parent, icon, value, label, color):
-        """Crée une carte de statistique"""
-        card = tk.Frame(parent, bg=self.colors['card_bg'], width=180, height=120)
-        card.pack_propagate(False)
-        
-        content = tk.Frame(card, bg=self.colors['card_bg'])
-        content.place(relx=0.5, rely=0.5, anchor='center')
-        
-        tk.Label(content, text=icon, font=('Segoe UI', 24),
-                bg=self.colors['card_bg'], fg=color).pack()
-        
-        tk.Label(content, text=value, font=('Segoe UI', 28, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(pady=5)
-        
-        tk.Label(content, text=label, font=('Segoe UI', 12),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary']).pack()
-        
-        return card
-    
-    def create_quick_action_card(self, parent, icon, title, subtitle, command):
-        """Crée une carte d'action rapide"""
-        card = tk.Frame(parent, bg=self.colors['card_bg'], width=220, height=100)
-        card.pack_propagate(False)
-        
-        def on_enter(e):
-            card.configure(bg=self.colors['card_hover'])
-        
-        def on_leave(e):
-            card.configure(bg=self.colors['card_bg'])
-        
-        content = tk.Frame(card, bg=self.colors['card_bg'], padx=20)
-        content.place(relx=0.5, rely=0.5, anchor='center')
-        
-        tk.Label(content, text=icon, font=('Segoe UI', 24),
-                bg=self.colors['card_bg'], fg=self.colors['primary']).pack(anchor='w')
-        
-        tk.Label(content, text=title, font=('Segoe UI', 14, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w', pady=(5, 2))
-        
-        tk.Label(content, text=subtitle, font=('Segoe UI', 10),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
-                wraplength=180).pack(anchor='w')
-        
-        # Bind events
-        if command:
-            card.bind('<Enter>', on_enter)
-            card.bind('<Leave>', on_leave)
-            card.bind('<Button-1>', lambda e: command())
-            for widget in content.winfo_children():
-                widget.bind('<Button-1>', lambda e: command())
-                widget.configure(cursor='hand2')
-            card.configure(cursor='hand2')
-        
-        return card
-    
-    def show_meal_generator(self):
-        """Affiche le générateur de repas"""
-        self.clear_window()
-        self.show_sidebar()
-        
-        # Contenu principal
-        main_content = tk.Frame(self.root, bg=self.colors['background'])
-        main_content.pack(side='right', fill='both', expand=True, padx=30, pady=30)
-        
-        tk.Label(main_content, text="🎯 Générateur de Repas", 
-                font=self.heading_font, bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 30))
-        
-        # Formulaire de génération
-        form_card = tk.Frame(main_content, bg=self.colors['card_bg'], padx=30, pady=30)
-        form_card.pack(fill='x', pady=(0, 20))
-        
-        tk.Label(form_card, text="⚙️ Paramètres du plan", font=('Segoe UI', 18, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 20))
-        
-        # Grille paramètres
-        grid = tk.Frame(form_card, bg=self.colors['card_bg'])
-        grid.pack(fill='x')
-        
-        # Nombre de jours
-        tk.Label(grid, text="Nombre de jours:", font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=0, sticky='w', pady=10)
-        
-        self.days_var = tk.StringVar(value="7")
-        days_combo = ttk.Combobox(grid, textvariable=self.days_var, 
-                                 values=["3", "5", "7", "14", "30"], 
-                                 width=10, font=self.body_font)
-        days_combo.grid(row=0, column=1, padx=20, pady=10)
-        
-        # Calories cible
-        tk.Label(grid, text="Calories par jour:", font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=2, sticky='w', pady=10)
-        
-        self.calories_var = tk.StringVar(value="2000")
-        calories_combo = ttk.Combobox(grid, textvariable=self.calories_var, 
-                                     values=["1500", "1800", "2000", "2200", "2500", "3000"], 
-                                     width=10, font=self.body_font)
-        calories_combo.grid(row=0, column=3, padx=20, pady=10)
-        
-        # Régime alimentaire
-        tk.Label(grid, text="Régime:", font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=0, sticky='w', pady=10)
-        
-        self.diet_var = tk.StringVar(value="Tout")
-        diet_combo = ttk.Combobox(grid, textvariable=self.diet_var, 
-                                 values=["Tout", "Végétarien", "Végétalien", "Sans gluten", "Faible en glucides"], 
-                                 width=12, font=self.body_font)
-        diet_combo.grid(row=1, column=1, padx=20, pady=10)
-        
-        # Difficulté
-        tk.Label(grid, text="Difficulté:", font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=2, sticky='w', pady=10)
-        
-        self.difficulty_var = tk.StringVar(value="Tout")
-        difficulty_combo = ttk.Combobox(grid, textvariable=self.difficulty_var, 
-                                       values=["Tout", "Facile", "Moyen", "Difficile"], 
-                                       width=10, font=self.body_font)
-        difficulty_combo.grid(row=1, column=3, padx=20, pady=10)
-        
-        # Boutons
-        btn_frame = tk.Frame(form_card, bg=self.colors['card_bg'])
-        btn_frame.pack(pady=20)
-        
-        generate_btn = tk.Label(btn_frame, text="🎯 Générer le plan", font=self.button_font,
-                               bg=self.colors['primary'], fg='white',
-                               cursor='hand2', padx=30, pady=12)
-        generate_btn.bind('<Button-1>', lambda e: self.generate_meal_plan())
-        generate_btn.pack(side='left', padx=5)
-        
-        save_btn = tk.Label(btn_frame, text="💾 Sauvegarder", font=self.button_font,
-                           bg=self.colors['secondary'], fg='white',
-                           cursor='hand2', padx=30, pady=12)
-        save_btn.bind('<Button-1>', lambda e: self.save_generated_plan())
-        save_btn.pack(side='left', padx=5)
-        
-        # Zone de résultats
-        results_frame = tk.Frame(main_content, bg=self.colors['card_bg'])
-        results_frame.pack(fill='both', expand=True, pady=10)
-        
-        self.results_text = scrolledtext.ScrolledText(results_frame, font=('Consolas', 11),
-                                                     bg=self.colors['card_bg'], fg=self.colors['text_primary'],
-                                                     insertbackground='white', wrap=tk.WORD)
-        self.results_text.pack(fill='both', expand=True, padx=1, pady=1)
-        
-        # Générer un exemple
-        self.generate_sample_plan()
-    
-    def generate_sample_plan(self):
-        """Génère un plan d'exemple"""
-        sample_text = "╔════════════════════════════════════════╗\n"
-        sample_text += "║     BIENVENUE AU GÉNÉRATEUR DE REPAS    ║\n"
-        sample_text += "╚════════════════════════════════════════╝\n\n"
-        sample_text += "Configurez vos paramètres ci-dessus et cliquez sur\n"
-        sample_text += "'🎯 Générer le plan' pour créer votre plan personnalisé!\n\n"
-        sample_text += "💡 Conseils nutritionnels :\n"
-        sample_text += "   • Pour une perte de poids : 1500-1800 calories/jour\n"
-        sample_text += "   • Pour le maintien : 2000-2200 calories/jour\n"
-        sample_text += "   • Pour prise de masse : 2500-3000 calories/jour\n"
-        
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.insert(1.0, sample_text)
-    
-    def generate_meal_plan(self):
-        """Génère un plan alimentaire personnalisé"""
-        try:
-            days = int(self.days_var.get())
-            target_calories = int(self.calories_var.get())
-            diet = self.diet_var.get()
-            difficulty = self.difficulty_var.get()
-        except ValueError:
-            messagebox.showerror("Erreur", "Veuillez entrer des valeurs valides")
-            return
-        
-        # Construire la requête SQL
-        query = "SELECT * FROM recipes WHERE 1=1"
-        params = []
-        
-        if diet != "Tout":
-            if diet == "Végétarien":
-                query += " AND (tags LIKE ? OR tags LIKE ?)"
-                params.extend(['%végétarien%', '%vegetarian%'])
-            elif diet == "Végétalien":
-                query += " AND (tags LIKE ? OR tags LIKE ?)"
-                params.extend(['%végétalien%', '%vegan%'])
-        
-        if difficulty != "Tout":
-            query += " AND difficulty = ?"
-            params.append(difficulty.lower())
-        
-        self.cursor.execute(query, params)
-        all_recipes = self.cursor.fetchall()
-        
-        if not all_recipes:
-            messagebox.showerror("Erreur", "Aucune recette ne correspond à vos critères")
-            return
-        
-        # Organiser par catégorie
-        categories = {
-            'Petit-déjeuner': [r for r in all_recipes if r[2] == 'Petit-déjeuner'],
-            'Déjeuner': [r for r in all_recipes if r[2] == 'Déjeuner'],
-            'Dîner': [r for r in all_recipes if r[2] == 'Dîner']
-        }
-        
-        # Générer le plan
-        plan_text = self.create_plan_header(days, target_calories, diet, difficulty)
-        total_calories = 0
-        
-        for day in range(1, days + 1):
-            daily_text = f"\n{'='*60}\n"
-            daily_text += f"✨ JOUR {day:02d}\n"
-            daily_text += f"{'='*60}\n\n"
-            
-            daily_calories = 0
-            
-            for meal_type in ['Petit-déjeuner', 'Déjeuner', 'Dîner']:
-                available = categories.get(meal_type, [])
-                if available:
-                    recipe = random.choice(available)
-                    daily_text += f"🍽️  {meal_type}\n"
-                    daily_text += f"   📛 {recipe[1]}\n"
-                    daily_text += f"   ⏱️  {recipe[11]} min | 🔥 {recipe[6]} cal | 🎯 {recipe[12]}\n"
-                    daily_text += f"   📝 {recipe[4][:100]}...\n\n"
-                    daily_calories += recipe[6]
-                else:
-                    daily_text += f"🍽️  {meal_type}\n"
-                    daily_text += f"   ⚠️  Aucune recette disponible\n\n"
-            
-            daily_text += f"📊 TOTAL JOUR {day:02d}: {daily_calories} calories\n"
-            plan_text += daily_text
-            total_calories += daily_calories
-        
-        # Ajouter le résumé
-        plan_text += self.create_plan_summary(days, target_calories, total_calories)
-        
-        # Afficher le plan
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.insert(1.0, plan_text)
-        
-        # Stocker pour sauvegarde
-        self.current_generated_plan = {
-            'text': plan_text,
-            'days': days,
-            'calories': target_calories,
-            'diet': diet,
-            'difficulty': difficulty
-        }
-    
-    def create_plan_header(self, days, calories, diet, difficulty):
-        """Crée l'en-tête du plan"""
-        header = "╔══════════════════════════════════════════════════╗\n"
-        header += "║              📋 SMARTMEAL PLANNER               ║\n"
-        header += "║           Plan Alimentaire Personnalisé         ║\n"
-        header += "╚══════════════════════════════════════════════════╝\n\n"
-        
-        header += f"🔮 Durée: {days} jours\n"
-        header += f"🎯 Objectif: {calories} calories/jour\n"
-        header += f"🥗 Régime: {diet}\n"
-        header += f"⚡ Difficulté: {difficulty}\n"
-        header += f"📅 Généré le: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
-        header += "═" * 60 + "\n\n"
-        
-        return header
-    
-    def create_plan_summary(self, days, target_calories, total_calories):
-        """Crée le résumé du plan"""
-        avg_daily = total_calories // days
-        deviation = abs(avg_daily - target_calories)
-        
-        summary = "\n" + "═" * 60 + "\n"
-        summary += "📈 RÉSUMÉ DU PLAN\n"
-        summary += "═" * 60 + "\n\n"
-        
-        summary += f"📅 Durée totale: {days} jours\n"
-        summary += f"🎯 Calories cible/jour: {target_calories} cal\n"
-        summary += f"🔥 Calories totales: {total_calories} cal\n"
-        summary += f"📊 Moyenne réelle/jour: {avg_daily} cal\n"
-        summary += f"📉 Écart moyen: {deviation} cal\n\n"
-        
-        # Évaluation
-        if deviation <= 100:
-            summary += "✅ Excellent ! Le plan est très proche de votre objectif.\n"
-        elif deviation <= 300:
-            summary += "⚠️  Bon ! Le plan est raisonnablement proche de votre objectif.\n"
+        if recent_plans:
+            for plan in recent_plans:
+                plan_name, days_count, created_at = plan
+                plan_card = self.create_plan_card(plans_frame, plan_name, 
+                                                 f"{days_count} jours • {created_at[:10]}", 
+                                                 "📋 Sauvegardé")
+                plan_card.pack(fill='x', pady=5)
         else:
-            summary += "📝 À ajuster ! Considérez modifier vos paramètres.\n"
-        
-        summary += "\n💡 Conseils :\n"
-        summary += "   • Buvez au moins 2L d'eau par jour\n"
-        summary += "   • Faites 30 minutes d'activité physique quotidienne\n"
-        summary += "   • Écoutez votre corps et ajustez selon vos besoins\n"
-        
-        return summary
+            empty_label = tk.Label(plans_frame, text="📭 Aucun plan sauvegardé pour le moment",
+                                  font=('Segoe UI', 14), bg=self.colors['background'], 
+                                  fg=self.colors['text_secondary'])
+            empty_label.pack(pady=20)
     
-    def save_generated_plan(self):
-        """Sauvegarde le plan généré"""
-        if not hasattr(self, 'current_generated_plan'):
-            messagebox.showerror("Erreur", "Aucun plan à sauvegarder")
-            return
+    def show_saved_plans(self):
+        """Affiche les plans sauvegardés (inscriptions)"""
+        self.clear_window()
         
-        # Fenêtre de sauvegarde
-        save_window = tk.Toplevel(self.root)
-        save_window.title("Sauvegarder le plan")
-        save_window.geometry("400x300")
-        save_window.configure(bg=self.colors['background'])
-        
-        tk.Label(save_window, text="💾 Sauvegarder le plan", 
-                font=self.heading_font, bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(pady=30)
-        
-        tk.Label(save_window, text="Nom du plan:", font=('Segoe UI', 12),
-                bg=self.colors['background'], fg=self.colors['text_secondary']).pack(pady=10)
-        
-        plan_name_var = tk.StringVar(value=f"Plan {datetime.now().strftime('%d/%m')}")
-        name_entry = tk.Entry(save_window, font=self.body_font, 
-                             bg=self.colors['card_bg'], fg=self.colors['text_primary'],
-                             textvariable=plan_name_var)
-        name_entry.pack(pady=10, padx=50, fill='x')
-        
-        def save():
-            name = plan_name_var.get()
-            if not name:
-                messagebox.showerror("Erreur", "Veuillez entrer un nom")
-                return
-            
-            try:
-                self.cursor.execute('''
-                    INSERT INTO saved_plans (user_id, plan_name, plan_text, calories_target, days_count)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (self.current_user['id'], name, 
-                      self.current_generated_plan['text'],
-                      self.current_generated_plan['calories'],
-                      self.current_generated_plan['days']))
-                self.conn.commit()
-                
-                messagebox.showinfo("Succès", f"Plan '{name}' sauvegardé !")
-                save_window.destroy()
-                self.show_saved_plans()
-                
-            except Exception as e:
-                messagebox.showerror("Erreur", f"Erreur: {str(e)}")
-        
-        save_btn = tk.Label(save_window, text="Sauvegarder", font=self.button_font,
-                           bg=self.colors['primary'], fg='white',
-                           cursor='hand2', padx=30, pady=10)
-        save_btn.bind('<Button-1>', lambda e: save())
-        save_btn.pack(pady=30)
-    
-    def show_sidebar(self):
-        """Affiche la sidebar"""
-        sidebar = tk.Frame(self.root, bg=self.colors['card_bg'], width=280)
+        # Barre latérale
+        sidebar = tk.Frame(self.root, bg=self.colors['card_bg'], width=250)
         sidebar.pack(side='left', fill='y')
         sidebar.pack_propagate(False)
         
         menu_items = [
-            ("📊", "Tableau de bord", self.show_dashboard),
-            ("🍽️", "Générateur", self.show_meal_generator),
-            ("📖", "Recettes", self.show_recipes),
-            ("💾", "Plans", self.show_saved_plans),
-            ("⭐", "Favoris", self.show_favorites),
-            ("📈", "Progression", self.show_progress),
-            ("👤", "Profil", self.show_profile)
+            ("📊 Tableau de bord", self.show_dashboard),
+            ("🍽️ Générer repas", self.show_meal_generator),
+            ("📖 Recettes", self.show_recipes),
+            ("💾 Mes inscriptions", self.show_saved_plans),
+            ("👤 Profil", self.show_profile),
+            ("🚪 Déconnexion", self.show_login_screen)
         ]
         
-        for icon, text, command in menu_items:
-            btn = self.create_menu_button(sidebar, icon, text, command)
+        for text, command in menu_items:
+            btn = tk.Label(sidebar, text=text, font=('Segoe UI', 12),
+                          bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
+                          cursor='hand2', padx=20, pady=15)
+            btn.bind('<Button-1>', lambda e, cmd=command: cmd())
             btn.pack(fill='x')
-    
-    def show_recipes(self):
-        """Affiche la page des recettes avec recherche"""
-        self.clear_window()
-        self.show_sidebar()
         
+        # Contenu principal
         main_content = tk.Frame(self.root, bg=self.colors['background'])
-        main_content.pack(side='right', fill='both', expand=True, padx=30, pady=30)
+        main_content.pack(side='right', fill='both', expand=True, padx=20, pady=20)
         
-        tk.Label(main_content, text="📖 Recettes & Idées Repas", 
-                font=self.heading_font, bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 30))
+        tk.Label(main_content, text="💾 Mes inscriptions", 
+                font=('Segoe UI', 28, 'bold'), bg=self.colors['background'], 
+                fg=self.colors['text_primary']).pack(pady=(0, 30))
         
-        # Barre de recherche
-        search_frame = tk.Frame(main_content, bg=self.colors['card_bg'], padx=20, pady=20)
-        search_frame.pack(fill='x', pady=(0, 20))
-        
-        tk.Label(search_frame, text="🔍 Rechercher une recette", 
-                font=('Segoe UI', 16, 'bold'), bg=self.colors['card_bg'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 15))
-        
-        # Champs de recherche
-        search_grid = tk.Frame(search_frame, bg=self.colors['card_bg'])
-        search_grid.pack(fill='x')
-        
-        # Mot-clé
-        tk.Label(search_grid, text="Mot-clé:", font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary']).grid(row=0, column=0, sticky='w', padx=(0, 10))
-        
-        self.search_keyword = tk.Entry(search_grid, font=self.body_font, 
-                                      bg=self.colors['background'], fg=self.colors['text_primary'],
-                                      width=20)
-        self.search_keyword.grid(row=0, column=1, padx=(0, 20))
-        
-        # Catégorie
-        tk.Label(search_grid, text="Catégorie:", font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary']).grid(row=0, column=2, sticky='w', padx=(0, 10))
-        
-        self.search_category = ttk.Combobox(search_grid, values=["Toutes", "Petit-déjeuner", "Déjeuner", "Dîner"],
-                                           font=self.body_font, width=15)
-        self.search_category.set("Toutes")
-        self.search_category.grid(row=0, column=3, padx=(0, 20))
-        
-        # Difficulté
-        tk.Label(search_grid, text="Difficulté:", font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary']).grid(row=0, column=4, sticky='w', padx=(0, 10))
-        
-        self.search_difficulty = ttk.Combobox(search_grid, values=["Toutes", "Facile", "Moyen"],
-                                             font=self.body_font, width=12)
-        self.search_difficulty.set("Toutes")
-        self.search_difficulty.grid(row=0, column=5)
-        
-        # Bouton recherche
-        search_btn = tk.Label(search_grid, text="Rechercher", font=('Segoe UI', 11, 'bold'),
-                             bg=self.colors['primary'], fg='white',
-                             cursor='hand2', padx=15, pady=8)
-        search_btn.bind('<Button-1>', lambda e: self.search_recipes())
-        search_btn.grid(row=0, column=6, padx=(20, 0))
-        
-        # Zone des résultats
-        results_frame = tk.Frame(main_content, bg=self.colors['background'])
-        results_frame.pack(fill='both', expand=True)
-        
-        # Canvas pour le défilement
-        self.canvas = tk.Canvas(results_frame, bg=self.colors['background'], highlightthickness=0)
-        scrollbar = ttk.Scrollbar(results_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas, bg=self.colors['background'])
-        
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
-        
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=scrollbar.set)
-        
-        self.canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-        
-        # Charger toutes les recettes initialement
-        self.search_recipes()
-    
-    def search_recipes(self):
-        """Effectue la recherche de recettes"""
-        # Nettoyer l'affichage précédent
-        for widget in self.scrollable_frame.winfo_children():
-            widget.destroy()
-        
-        # Construire la requête
-        query = "SELECT * FROM recipes WHERE 1=1"
-        params = []
-        
-        keyword = self.search_keyword.get()
-        if keyword:
-            query += " AND (name LIKE ? OR ingredients LIKE ? OR tags LIKE ?)"
-            params.extend([f'%{keyword}%', f'%{keyword}%', f'%{keyword}%'])
-        
-        category = self.search_category.get()
-        if category != "Toutes":
-            query += " AND category = ?"
-            params.append(category)
-        
-        difficulty = self.search_difficulty.get()
-        if difficulty != "Toutes":
-            query += " AND difficulty = ?"
-            params.append(difficulty.lower())
-        
-        self.cursor.execute(query, params)
-        results = self.cursor.fetchall()
-        
-        # Afficher les résultats
-        if not results:
-            tk.Label(self.scrollable_frame, text="Aucune recette trouvée",
-                    font=('Segoe UI', 14), bg=self.colors['background'],
-                    fg=self.colors['text_secondary']).pack(pady=50)
-            return
-        
-        # Afficher en grille
-        row, col = 0, 0
-        for recipe in results:
-            card = self.create_recipe_card(self.scrollable_frame, recipe)
-            card.grid(row=row, column=col, padx=10, pady=10)
-            
-            col += 1
-            if col > 2:  # 3 cartes par ligne
-                col = 0
-                row += 1
-        
-        # Ajuster la taille du canvas
-        self.scrollable_frame.update_idletasks()
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-    
-    def show_recipe_detail(self, recipe_id):
-        """Affiche les détails d'une recette"""
-        self.cursor.execute('SELECT * FROM recipes WHERE id = ?', (recipe_id,))
-        recipe = self.cursor.fetchone()
-        
-        if not recipe:
-            messagebox.showerror("Erreur", "Recette non trouvée")
-            return
-        
-        # Fenêtre de détail
-        detail_window = tk.Toplevel(self.root)
-        detail_window.title(f"Recette - {recipe[1]}")
-        detail_window.geometry("900x700")
-        detail_window.configure(bg=self.colors['background'])
-        
-        # Image header
-        header_frame = tk.Frame(detail_window, bg=self.colors['primary'], height=200)
-        header_frame.pack(fill='x')
-        header_frame.pack_propagate(False)
-        
-        tk.Label(header_frame, text=self.category_icons.get(recipe[2], '🍽️'), 
-                font=('Segoe UI', 72), bg=self.colors['primary'], fg='white').place(relx=0.5, rely=0.5, anchor='center')
-        
-        # Contenu
-        content_frame = tk.Frame(detail_window, bg=self.colors['background'], padx=40, pady=30)
-        content_frame.pack(fill='both', expand=True)
-        
-        # Titre
-        tk.Label(content_frame, text=recipe[1], font=('Segoe UI', 28, 'bold'),
-                bg=self.colors['background'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 10))
-        
-        # Badges
-        badges_frame = tk.Frame(content_frame, bg=self.colors['background'])
-        badges_frame.pack(anchor='w', pady=(0, 20))
-        
-        badges = [
-            (recipe[2], self.colors['primary']),
-            (f"{recipe[11]} min", self.colors['secondary']),
-            (f"{recipe[6]} cal", self.colors['accent']),
-            (recipe[12], self.colors['success'])
-        ]
-        
-        for text, color in badges:
-            badge = tk.Label(badges_frame, text=text, font=('Segoe UI', 10, 'bold'),
-                            bg=color, fg='white', padx=10, pady=5)
-            badge.pack(side='left', padx=5)
-        
-        # Informations nutritionnelles
-        tk.Label(content_frame, text="📊 Valeurs nutritionnelles", 
-                font=('Segoe UI', 16, 'bold'), bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(10, 10))
-        
-        nutrition_frame = tk.Frame(content_frame, bg=self.colors['card_bg'], padx=20, pady=15)
-        nutrition_frame.pack(fill='x', pady=(0, 20))
-        
-        nutrients = [
-            ("🔥 Calories", f"{recipe[6]} cal"),
-            ("💪 Protéines", f"{recipe[7]}g"),
-            ("🌾 Glucides", f"{recipe[8]}g"),
-            ("🥑 Lipides", f"{recipe[9]}g")
-        ]
-        
-        for i, (label, value) in enumerate(nutrients):
-            tk.Label(nutrition_frame, text=label, font=('Segoe UI', 11),
-                    bg=self.colors['card_bg'], fg=self.colors['text_secondary']).grid(row=0, column=i*2, padx=10)
-            tk.Label(nutrition_frame, text=value, font=('Segoe UI', 14, 'bold'),
-                    bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=i*2, padx=10)
-        
-        # Ingrédients
-        tk.Label(content_frame, text="🥕 Ingrédients", 
-                font=('Segoe UI', 16, 'bold'), bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(10, 10))
-        
-        ingredients_text = scrolledtext.ScrolledText(content_frame, height=6, font=self.body_font,
-                                                    bg=self.colors['card_bg'], fg=self.colors['text_primary'],
-                                                    wrap=tk.WORD)
-        ingredients_text.pack(fill='x', pady=(0, 20))
-        ingredients_text.insert(1.0, recipe[4])
-        ingredients_text.config(state='disabled')
-        
-        # Instructions
-        tk.Label(content_frame, text="📝 Instructions", 
-                font=('Segoe UI', 16, 'bold'), bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(10, 10))
-        
-        instructions_text = scrolledtext.ScrolledText(content_frame, height=8, font=self.body_font,
-                                                     bg=self.colors['card_bg'], fg=self.colors['text_primary'],
-                                                     wrap=tk.WORD)
-        instructions_text.pack(fill='both', expand=True)
-        instructions_text.insert(1.0, recipe[5])
-        instructions_text.config(state='disabled')
-    
-    def show_saved_plans(self):
-        """Affiche les plans sauvegardés"""
-        self.clear_window()
-        self.show_sidebar()
-        
-        main_content = tk.Frame(self.root, bg=self.colors['background'])
-        main_content.pack(side='right', fill='both', expand=True, padx=30, pady=30)
-        
-        tk.Label(main_content, text="💾 Plans Sauvegardés", 
-                font=self.heading_font, bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 30))
-        
-        # Récupérer les plans
+        # Récupérer tous les plans sauvegardés
         self.cursor.execute('''
-            SELECT id, plan_name, days_count, calories_target, created_at 
+            SELECT id, plan_name, calories_target, days_count, created_at 
             FROM saved_plans 
             WHERE user_id = ? 
             ORDER BY created_at DESC
         ''', (self.current_user['id'],))
         
-        plans = self.cursor.fetchall()
+        saved_plans = self.cursor.fetchall()
         
-        if not plans:
-            tk.Label(main_content, text="📭 Aucun plan sauvegardé",
-                    font=('Segoe UI', 16), bg=self.colors['background'],
-                    fg=self.colors['text_secondary']).place(relx=0.5, rely=0.5, anchor='center')
-            return
-        
-        # Canvas pour le défilement
-        canvas = tk.Canvas(main_content, bg=self.colors['background'], highlightthickness=0)
-        scrollbar = ttk.Scrollbar(main_content, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg=self.colors['background'])
-        
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-        
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-        
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-        
-        # Afficher les plans
-        for i, (plan_id, name, days, calories, created_at) in enumerate(plans):
-            card = self.create_saved_plan_card(scrollable_frame, plan_id, name, days, calories, created_at)
-            card.pack(fill='x', pady=10)
-    
-    def create_saved_plan_card(self, parent, plan_id, name, days, calories, created_at):
-        """Crée une carte pour un plan sauvegardé"""
-        card = tk.Frame(parent, bg=self.colors['card_bg'], padx=20, pady=20)
-        
-        # Header
-        header_frame = tk.Frame(card, bg=self.colors['card_bg'])
-        header_frame.pack(fill='x', pady=(0, 15))
-        
-        tk.Label(header_frame, text=name, font=('Segoe UI', 18, 'bold'),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(side='left')
-        
-        tk.Label(header_frame, text=f"📅 {created_at[:10]}", font=('Segoe UI', 11),
-                bg=self.colors['card_bg'], fg=self.colors['text_secondary']).pack(side='right')
-        
-        # Informations
-        info_frame = tk.Frame(card, bg=self.colors['card_bg'])
-        info_frame.pack(fill='x', pady=(0, 15))
-        
-        tk.Label(info_frame, text=f"⏱️  {days} jours", font=('Segoe UI', 12),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(side='left', padx=(0, 20))
-        
-        tk.Label(info_frame, text=f"🔥 {calories} cal/jour", font=('Segoe UI', 12),
-                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(side='left')
-        
-        # Boutons d'action
-        btn_frame = tk.Frame(card, bg=self.colors['card_bg'])
-        btn_frame.pack(fill='x')
-        
-        view_btn = tk.Label(btn_frame, text="👁️ Voir", font=('Segoe UI', 11, 'bold'),
-                           bg=self.colors['primary'], fg='white',
-                           cursor='hand2', padx=15, pady=8)
-        view_btn.bind('<Button-1>', lambda e: self.view_saved_plan(plan_id))
-        view_btn.pack(side='left', padx=2)
-        
-        delete_btn = tk.Label(btn_frame, text="🗑️ Supprimer", font=('Segoe UI', 11, 'bold'),
-                             bg=self.colors['danger'], fg='white',
-                             cursor='hand2', padx=15, pady=8)
-        delete_btn.bind('<Button-1>', lambda e: self.delete_saved_plan(plan_id))
-        delete_btn.pack(side='left', padx=2)
-        
-        return card
+        if saved_plans:
+            # Frame pour la liste des plans
+            list_frame = tk.Frame(main_content, bg=self.colors['background'])
+            list_frame.pack(fill='both', expand=True)
+            
+            # En-têtes
+            headers = ["Nom", "Calories/jour", "Jours", "Date", "Actions"]
+            for col, header in enumerate(headers):
+                tk.Label(list_frame, text=header, font=('Segoe UI', 12, 'bold'),
+                        bg=self.colors['background'], fg=self.colors['primary']).grid(row=0, column=col, padx=10, pady=10)
+            
+            # Liste des plans
+            for row, plan in enumerate(saved_plans, 1):
+                plan_id, plan_name, calories, days, created_at = plan
+                
+                # Nom du plan
+                tk.Label(list_frame, text=plan_name, font=('Segoe UI', 11),
+                        bg=self.colors['background'], fg=self.colors['text_primary']).grid(row=row, column=0, padx=10, pady=5)
+                
+                # Calories
+                tk.Label(list_frame, text=f"{calories} cal", font=('Segoe UI', 11),
+                        bg=self.colors['background'], fg=self.colors['text_primary']).grid(row=row, column=1, padx=10, pady=5)
+                
+                # Jours
+                tk.Label(list_frame, text=str(days), font=('Segoe UI', 11),
+                        bg=self.colors['background'], fg=self.colors['text_primary']).grid(row=row, column=2, padx=10, pady=5)
+                
+                # Date
+                tk.Label(list_frame, text=created_at[:10], font=('Segoe UI', 11),
+                        bg=self.colors['background'], fg=self.colors['text_secondary']).grid(row=row, column=3, padx=10, pady=5)
+                
+                # Boutons d'action
+                action_frame = tk.Frame(list_frame, bg=self.colors['background'])
+                action_frame.grid(row=row, column=4, padx=10, pady=5)
+                
+                # Bouton Voir
+                view_btn = tk.Label(action_frame, text="👁️ Voir", font=('Segoe UI', 10),
+                                   bg=self.colors['primary'], fg='white',
+                                   cursor='hand2', padx=10, pady=5)
+                view_btn.bind('<Button-1>', lambda e, pid=plan_id: self.view_saved_plan(pid))
+                view_btn.pack(side='left', padx=2)
+                
+                # Bouton Supprimer
+                delete_btn = tk.Label(action_frame, text="🗑️ Supprimer", font=('Segoe UI', 10),
+                                     bg='#ef4444', fg='white',
+                                     cursor='hand2', padx=10, pady=5)
+                delete_btn.bind('<Button-1>', lambda e, pid=plan_id: self.delete_saved_plan(pid))
+                delete_btn.pack(side='left', padx=2)
+        else:
+            empty_frame = tk.Frame(main_content, bg=self.colors['background'])
+            empty_frame.pack(fill='both', expand=True)
+            
+            tk.Label(empty_frame, text="📭 Aucune inscription pour le moment", 
+                    font=('Segoe UI', 18), bg=self.colors['background'], 
+                    fg=self.colors['text_secondary']).pack(pady=50)
+            
+            tk.Label(empty_frame, text="Générez votre premier plan pour le sauvegarder ici !", 
+                    font=('Segoe UI', 14), bg=self.colors['background'], 
+                    fg=self.colors['text_secondary']).pack(pady=10)
     
     def view_saved_plan(self, plan_id):
         """Affiche un plan sauvegardé"""
@@ -1640,109 +703,458 @@ class ModernSmartMealPlanner:
         if result:
             plan_text = result[0]
             
-            window = tk.Toplevel(self.root)
-            window.title("Plan sauvegardé")
-            window.geometry("800x600")
-            window.configure(bg=self.colors['background'])
+            # Fenêtre popup
+            popup = tk.Toplevel(self.root)
+            popup.title("📋 Plan sauvegardé")
+            popup.geometry("800x600")
+            popup.configure(bg=self.colors['background'])
             
-            text_widget = scrolledtext.ScrolledText(window, font=('Consolas', 11),
-                                                   bg=self.colors['card_bg'], fg=self.colors['text_primary'])
+            # Zone de texte
+            text_widget = scrolledtext.ScrolledText(popup, font=('Consolas', 11),
+                                                   bg=self.colors['card_bg'], fg=self.colors['text_primary'],
+                                                   insertbackground='white')
             text_widget.pack(fill='both', expand=True, padx=20, pady=20)
             text_widget.insert(1.0, plan_text)
             text_widget.config(state='disabled')
     
     def delete_saved_plan(self, plan_id):
         """Supprime un plan sauvegardé"""
-        if messagebox.askyesno("Confirmation", "Supprimer ce plan ?"):
+        if messagebox.askyesno("Confirmation", "Êtes-vous sûr de vouloir supprimer ce plan ?"):
             self.cursor.execute('DELETE FROM saved_plans WHERE id = ?', (plan_id,))
             self.conn.commit()
-            messagebox.showinfo("Succès", "Plan supprimé")
+            messagebox.showinfo("Succès", "✅ Plan supprimé avec succès")
             self.show_saved_plans()
     
-    def show_favorites(self):
-        """Affiche les recettes favorites"""
-        messagebox.showinfo("Info", "Fonctionnalité à venir !")
+    def create_stats_card(self, parent, icon, value, text, color):
+        """Crée une carte de statistiques"""
+        card = tk.Frame(parent, bg=self.colors['card_bg'], relief='flat', padx=20, pady=20)
+        
+        tk.Label(card, text=icon, font=('Segoe UI', 20), bg=self.colors['card_bg'], fg=color).pack(anchor='w')
+        tk.Label(card, text=value, font=('Segoe UI', 24, 'bold'), bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w')
+        tk.Label(card, text=text, font=('Segoe UI', 12), bg=self.colors['card_bg'], fg=self.colors['text_secondary']).pack(anchor='w')
+        
+        return card
     
-    def show_progress(self):
-        """Affiche la page de progression"""
-        messagebox.showinfo("Info", "Fonctionnalité à venir !")
+    def create_plan_card(self, parent, title, details, status):
+        """Crée une carte de plan"""
+        card = tk.Frame(parent, bg=self.colors['card_bg'], relief='flat', padx=20, pady=15)
+        
+        # Titre et détails
+        left_frame = tk.Frame(card, bg=self.colors['card_bg'])
+        left_frame.pack(side='left', fill='y')
+        
+        tk.Label(left_frame, text=title, font=('Segoe UI', 14, 'bold'), 
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w')
+        tk.Label(left_frame, text=details, font=('Segoe UI', 11), 
+                bg=self.colors['card_bg'], fg=self.colors['text_secondary']).pack(anchor='w')
+        
+        # Statut
+        tk.Label(card, text=status, font=('Segoe UI', 12, 'bold'), 
+                bg=self.colors['card_bg'], fg=self.colors['primary']).pack(side='right')
+        
+        return card
+    
+    def show_meal_generator(self):
+        """Affiche le générateur de repas"""
+        self.clear_window()
+        
+        # Barre latérale (réutilisée)
+        sidebar = tk.Frame(self.root, bg=self.colors['card_bg'], width=250)
+        sidebar.pack(side='left', fill='y')
+        sidebar.pack_propagate(False)
+        
+        tk.Label(sidebar, text="🍽️", font=('Segoe UI', 24),
+                bg=self.colors['card_bg'], fg=self.colors['primary']).pack(pady=(30, 10))
+        
+        menu_items = [
+            ("📊 Tableau de bord", self.show_dashboard),
+            ("🍽️ Générer repas", self.show_meal_generator),
+            ("📖 Recettes", self.show_recipes),
+            ("💾 Mes inscriptions", self.show_saved_plans),
+            ("👤 Profil", self.show_profile),
+            ("🚪 Déconnexion", self.show_login_screen)
+        ]
+        
+        for text, command in menu_items:
+            btn = tk.Label(sidebar, text=text, font=('Segoe UI', 12),
+                          bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
+                          cursor='hand2', padx=20, pady=15)
+            btn.bind('<Button-1>', lambda e, cmd=command: cmd())
+            btn.pack(fill='x')
+        
+        # Contenu principal
+        main_content = tk.Frame(self.root, bg=self.colors['background'])
+        main_content.pack(side='right', fill='both', expand=True, padx=20, pady=20)
+        
+        tk.Label(main_content, text="🍽️ Générateur de Repas", 
+                font=('Segoe UI', 28, 'bold'), bg=self.colors['background'], 
+                fg=self.colors['text_primary']).pack(pady=(0, 30))
+        
+        # Carte paramètres
+        settings_card = tk.Frame(main_content, bg=self.colors['card_bg'], padx=30, pady=30)
+        settings_card.pack(fill='x', pady=(0, 20))
+        
+        tk.Label(settings_card, text="⚙️ Paramètres du plan", font=('Segoe UI', 18, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 20))
+        
+        # Grille paramètres
+        settings_grid = tk.Frame(settings_card, bg=self.colors['card_bg'])
+        settings_grid.pack(fill='x')
+        
+        # Nom du plan
+        tk.Label(settings_grid, text="Nom du plan:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=0, sticky='w', pady=10)
+        
+        self.plan_name_var = tk.StringVar(value=f"Plan {datetime.now().strftime('%d/%m/%Y')}")
+        plan_name_entry = ttk.Entry(settings_grid, textvariable=self.plan_name_var, width=20, font=('Segoe UI', 12))
+        plan_name_entry.grid(row=0, column=1, padx=20, pady=10)
+        
+        # Calories cible
+        tk.Label(settings_grid, text="Calories cible par jour:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=2, sticky='w', pady=10)
+        
+        self.calories_var = tk.StringVar(value="2000")
+        calories_entry = ttk.Entry(settings_grid, textvariable=self.calories_var, width=15, font=('Segoe UI', 12))
+        calories_entry.grid(row=0, column=3, padx=20, pady=10)
+        
+        # Nombre de jours
+        tk.Label(settings_grid, text="Nombre de jours:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=0, sticky='w', pady=10)
+        
+        self.days_var = tk.StringVar(value="7")
+        days_entry = ttk.Entry(settings_grid, textvariable=self.days_var, width=15, font=('Segoe UI', 12))
+        days_entry.grid(row=1, column=1, padx=20, pady=10)
+        
+        # Catégorie préférée
+        tk.Label(settings_grid, text="Catégorie préférée:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=2, sticky='w', pady=10)
+        
+        self.category_var = tk.StringVar(value="Toutes")
+        category_combo = ttk.Combobox(settings_grid, textvariable=self.category_var, 
+                                     values=["Toutes", "Petit-déjeuner", "Déjeuner", "Dîner"], 
+                                     width=12, font=('Segoe UI', 12))
+        category_combo.grid(row=1, column=3, padx=20, pady=10)
+        
+        # Boutons
+        button_frame = tk.Frame(settings_card, bg=self.colors['card_bg'])
+        button_frame.pack(pady=20)
+        
+        # Bouton génération
+        generate_btn = ttk.Button(button_frame, text="🎯 Générer le plan", style='Primary.TButton',
+                                 command=self.generate_meal_plan)
+        generate_btn.pack(side='left', padx=5)
+        
+        # Bouton sauvegarde
+        save_btn = ttk.Button(button_frame, text="💾 Sauvegarder le plan", style='Secondary.TButton',
+                             command=self.save_generated_plan)
+        save_btn.pack(side='left', padx=5)
+        
+        # Zone résultats
+        self.results_text = scrolledtext.ScrolledText(main_content, height=20, font=('Consolas', 11),
+                                                     bg=self.colors['card_bg'], fg=self.colors['text_primary'],
+                                                     insertbackground='white')
+        self.results_text.pack(fill='both', expand=True, pady=10)
+        
+        # Générer un plan par défaut
+        self.generate_sample_plan()
+    
+    def generate_sample_plan(self):
+        """Génère un plan d'exemple"""
+        sample_text = "╔════════════════════════════════════════╗\n"
+        sample_text += "║         BIENVENUE AU GÉNÉRATEUR        ║\n"
+        sample_text += "║              DE REPAS                 ║\n"
+        sample_text += "╚════════════════════════════════════════╝\n\n"
+        sample_text += "📋 Configurez vos paramètres ci-dessus et cliquez sur\n"
+        sample_text += "   '🎯 Générer le plan' pour créer votre plan personnalisé!\n\n"
+        sample_text += "💡 Conseils :\n"
+        sample_text += "   • Pour une perte de poids : 1500-1800 calories/jour\n"
+        sample_text += "   • Pour le maintien : 2000-2200 calories/jour\n"
+        sample_text += "   • Pour prise de masse : 2500-3000 calories/jour\n"
+        
+        self.results_text.delete(1.0, tk.END)
+        self.results_text.insert(1.0, sample_text)
+    
+    def generate_meal_plan(self):
+        """Génère un plan alimentaire avec style"""
+        try:
+            plan_name = self.plan_name_var.get()
+            days = int(self.days_var.get())
+            target_calories = int(self.calories_var.get())
+            category = self.category_var.get()
+        except ValueError:
+            messagebox.showerror("Erreur", "🔢 Veuillez entrer des nombres valides")
+            return
+        
+        # Récupérer les recettes selon la catégorie
+        if category == "Toutes":
+            self.cursor.execute('SELECT * FROM recipes')
+        else:
+            self.cursor.execute('SELECT * FROM recipes WHERE category = ?', (category,))
+        
+        all_recipes = self.cursor.fetchall()
+        
+        if not all_recipes:
+            messagebox.showerror("Erreur", "❌ Aucune recette disponible pour cette catégorie")
+            return
+        
+        # En-tête stylisé
+        plan_text = "╔════════════════════════════════════════╗\n"
+        plan_text += "║         📋 SMARTMEAL PLANNER          ║\n"
+        plan_text += f"║            {plan_name:^16}           ║\n"
+        plan_text += "╚════════════════════════════════════════╝\n\n"
+        
+        plan_text += f"🔮 Jours: {days} | 🎯 Calories/jour: {target_calories}\n"
+        if category != "Toutes":
+            plan_text += f"📂 Catégorie: {category}\n"
+        plan_text += "═" * 50 + "\n\n"
+        
+        categories = {
+            'Petit-déjeuner': [r for r in all_recipes if r[2] == 'Petit-déjeuner'],
+            'Déjeuner': [r for r in all_recipes if r[2] == 'Déjeuner'],
+            'Dîner': [r for r in all_recipes if r[2] == 'Dîner']
+        }
+        
+        total_calories = 0
+        
+        for day in range(1, days + 1):
+            plan_text += f"\n✨ JOUR {day}\n"
+            plan_text += "─" * 35 + "\n"
+            daily_calories = 0
+            
+            for meal_type in ['Petit-déjeuner', 'Déjeuner', 'Dîner']:
+                available = categories[meal_type]
+                if available:
+                    recipe = random.choice(available)
+                    plan_text += f"\n🍽️  {meal_type}:\n"
+                    plan_text += f"   📛 {recipe[1]}\n"
+                    plan_text += f"   ⏱️  {recipe[6]} min | 🔥 {recipe[5]} cal | 🎯 {recipe[7]}\n"
+                    plan_text += f"   📝 {recipe[3][:80]}...\n"
+                    daily_calories += recipe[5]
+                else:
+                    plan_text += f"\n🍽️  {meal_type}:\n"
+                    plan_text += f"   ❌ Aucune recette disponible\n"
+            
+            plan_text += f"\n📊 TOTAL JOUR {day}: {daily_calories} calories\n"
+            plan_text += "═" * 50 + "\n"
+            total_calories += daily_calories
+        
+        # Résumé
+        plan_text += f"\n📈 RÉSUMÉ DU PLAN\n"
+        plan_text += "─" * 35 + "\n"
+        plan_text += f"📅 Durée: {days} jours\n"
+        plan_text += f"🎯 Calories/jour cible: {target_calories}\n"
+        plan_text += f"🔥 Calories totales: {total_calories}\n"
+        plan_text += f"📊 Moyenne/jour: {total_calories//days}\n"
+        
+        self.results_text.delete(1.0, tk.END)
+        self.results_text.insert(1.0, plan_text)
+        
+        # Stocker le plan généré pour sauvegarde
+        self.current_generated_plan = {
+            'text': plan_text,
+            'name': plan_name,
+            'calories': target_calories,
+            'days': days,
+            'category': category
+        }
+    
+    def save_generated_plan(self):
+        """Sauvegarde le plan généré dans la base de données"""
+        if not hasattr(self, 'current_generated_plan'):
+            messagebox.showerror("Erreur", "❌ Aucun plan à sauvegarder. Générez d'abord un plan!")
+            return
+        
+        try:
+            self.cursor.execute('''
+                INSERT INTO saved_plans (user_id, plan_name, plan_text, calories_target, days_count)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (self.current_user['id'], 
+                  self.current_generated_plan['name'],
+                  self.current_generated_plan['text'],
+                  self.current_generated_plan['calories'],
+                  self.current_generated_plan['days']))
+            self.conn.commit()
+            
+            messagebox.showinfo("Succès", f"✅ Plan '{self.current_generated_plan['name']}' sauvegardé !")
+            self.show_saved_plans()
+            
+        except Exception as e:
+            messagebox.showerror("Erreur", f"❌ Impossible de sauvegarder: {e}")
+    
+    def show_recipe_search(self):
+        """Affiche la page de recherche de recettes"""
+        self.clear_window()
+        
+        # Barre latérale
+        sidebar = tk.Frame(self.root, bg=self.colors['card_bg'], width=250)
+        sidebar.pack(side='left', fill='y')
+        sidebar.pack_propagate(False)
+        
+        menu_items = [
+            ("📊 Tableau de bord", self.show_dashboard),
+            ("🍽️ Générer repas", self.show_meal_generator),
+            ("📖 Recettes", self.show_recipes),
+            ("💾 Mes inscriptions", self.show_saved_plans),
+            ("👤 Profil", self.show_profile),
+            ("🚪 Déconnexion", self.show_login_screen)
+        ]
+        
+        for text, command in menu_items:
+            btn = tk.Label(sidebar, text=text, font=('Segoe UI', 12),
+                          bg=self.colors['card_bg'], fg=self.colors['text_secondary'],
+                          cursor='hand2', padx=20, pady=15)
+            btn.bind('<Button-1>', lambda e, cmd=command: cmd())
+            btn.pack(fill='x')
+        
+        # Contenu principal
+        main_content = tk.Frame(self.root, bg=self.colors['background'])
+        main_content.pack(side='right', fill='both', expand=True, padx=20, pady=20)
+        
+        tk.Label(main_content, text="🔍 Recherche de Recettes", 
+                font=('Segoe UI', 28, 'bold'), bg=self.colors['background'], 
+                fg=self.colors['text_primary']).pack(pady=(0, 30))
+        
+        # Carte recherche
+        search_card = tk.Frame(main_content, bg=self.colors['card_bg'], padx=30, pady=30)
+        search_card.pack(fill='x', pady=(0, 20))
+        
+        tk.Label(search_card, text="🔎 Critères de recherche", font=('Segoe UI', 18, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 20))
+        
+        # Grille critères
+        criteria_grid = tk.Frame(search_card, bg=self.colors['card_bg'])
+        criteria_grid.pack(fill='x')
+        
+        # Catégorie
+        tk.Label(criteria_grid, text="Catégorie:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=0, sticky='w', pady=10)
+        
+        self.search_category_var = tk.StringVar(value="Toutes")
+        category_combo = ttk.Combobox(criteria_grid, textvariable=self.search_category_var, 
+                                     values=["Toutes", "Petit-déjeuner", "Déjeuner", "Dîner"], 
+                                     width=20, font=('Segoe UI', 12))
+        category_combo.grid(row=0, column=1, padx=20, pady=10)
+        
+        # Difficulté
+        tk.Label(criteria_grid, text="Difficulté:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=0, column=2, sticky='w', pady=10)
+        
+        self.search_difficulty_var = tk.StringVar(value="Toutes")
+        difficulty_combo = ttk.Combobox(criteria_grid, textvariable=self.search_difficulty_var, 
+                                       values=["Toutes", "Facile", "Moyen"], 
+                                       width=15, font=('Segoe UI', 12))
+        difficulty_combo.grid(row=0, column=3, padx=20, pady=10)
+        
+        # Calories max
+        tk.Label(criteria_grid, text="Calories max:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=0, sticky='w', pady=10)
+        
+        self.search_calories_var = tk.StringVar(value="500")
+        calories_entry = ttk.Entry(criteria_grid, textvariable=self.search_calories_var, width=15, font=('Segoe UI', 12))
+        calories_entry.grid(row=1, column=1, padx=20, pady=10)
+        
+        # Temps max
+        tk.Label(criteria_grid, text="Temps max (min):", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=1, column=2, sticky='w', pady=10)
+        
+        self.search_time_var = tk.StringVar(value="60")
+        time_entry = ttk.Entry(criteria_grid, textvariable=self.search_time_var, width=15, font=('Segoe UI', 12))
+        time_entry.grid(row=1, column=3, padx=20, pady=10)
+        
+        # Recherche texte
+        tk.Label(criteria_grid, text="Mot-clé:", font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['card_bg'], fg=self.colors['text_primary']).grid(row=2, column=0, sticky='w', pady=10)
+        
+        self.search_keyword_var = tk.StringVar()
+        keyword_entry = ttk.Entry(criteria_grid, textvariable=self.search_keyword_var, width=20, font=('Segoe UI', 12))
+        keyword_entry.grid(row=2, column=1, padx=20, pady=10, columnspan=3, sticky='we')
+        
+        # Bouton recherche
+        search_btn = ttk.Button(search_card, text="🔍 Rechercher", style='Primary.TButton',
+                               command=self.perform_recipe_search)
+        search_btn.pack(pady=20)
+        
+        # Zone résultats
+        self.search_results_text = scrolledtext.ScrolledText(main_content, height=20, font=('Consolas', 11),
+                                                           bg=self.colors['card_bg'], fg=self.colors['text_primary'],
+                                                           insertbackground='white')
+        self.search_results_text.pack(fill='both', expand=True, pady=10)
+    
+    def perform_recipe_search(self):
+        """Effectue la recherche de recettes"""
+        try:
+            # Construire la requête SQL
+            query = "SELECT * FROM recipes WHERE 1=1"
+            params = []
+            
+            # Catégorie
+            category = self.search_category_var.get()
+            if category != "Toutes":
+                query += " AND category = ?"
+                params.append(category)
+            
+            # Difficulté
+            difficulty = self.search_difficulty_var.get()
+            if difficulty != "Toutes":
+                query += " AND difficulty = ?"
+                params.append(difficulty)
+            
+            # Calories max
+            if self.search_calories_var.get():
+                query += " AND calories <= ?"
+                params.append(int(self.search_calories_var.get()))
+            
+            # Temps max
+            if self.search_time_var.get():
+                query += " AND prep_time <= ?"
+                params.append(int(self.search_time_var.get()))
+            
+            # Mot-clé
+            keyword = self.search_keyword_var.get()
+            if keyword:
+                query += " AND (name LIKE ? OR ingredients LIKE ?)"
+                params.append(f"%{keyword}%")
+                params.append(f"%{keyword}%")
+            
+            # Exécuter la requête
+            self.cursor.execute(query, params)
+            results = self.cursor.fetchall()
+            
+            # Afficher les résultats
+            self.display_search_results(results)
+            
+        except ValueError:
+            messagebox.showerror("Erreur", "🔢 Veuillez entrer des nombres valides")
+    
+    def display_search_results(self, results):
+        """Affiche les résultats de recherche"""
+        if not results:
+            results_text = "❌ Aucune recette ne correspond à vos critères de recherche.\n"
+            results_text += "   Essayez de modifier vos filtres."
+        else:
+            results_text = f"✅ {len(results)} recette(s) trouvée(s):\n"
+            results_text += "═" * 60 + "\n\n"
+            
+            for i, recipe in enumerate(results, 1):
+                results_text += f"📋 RECETTE #{i}\n"
+                results_text += f"🍽️  Nom: {recipe[1]}\n"
+                results_text += f"📂 Catégorie: {recipe[2]}\n"
+                results_text += f"🔥 Calories: {recipe[5]}\n"
+                results_text += f"⏱️  Temps: {recipe[6]} min\n"
+                results_text += f"🎯 Difficulté: {recipe[7]}\n"
+                results_text += f"🥕 Ingrédients: {recipe[3][:100]}...\n"
+                results_text += "─" * 40 + "\n\n"
+        
+        self.search_results_text.delete(1.0, tk.END)
+        self.search_results_text.insert(1.0, results_text)
+    
+    def show_recipes(self):
+        """Affiche toutes les recettes avec fonctionnalité de recherche"""
+        self.show_recipe_search()
     
     def show_profile(self):
         """Affiche la page profil"""
-        self.clear_window()
-        self.show_sidebar()
-        
-        main_content = tk.Frame(self.root, bg=self.colors['background'])
-        main_content.pack(side='right', fill='both', expand=True, padx=30, pady=30)
-        
-        tk.Label(main_content, text="👤 Mon Profil", 
-                font=self.heading_font, bg=self.colors['background'],
-                fg=self.colors['text_primary']).pack(anchor='w', pady=(0, 30))
-        
-        # Carte profil
-        profile_card = tk.Frame(main_content, bg=self.colors['card_bg'], padx=30, pady=30)
-        profile_card.pack(fill='x', pady=(0, 20))
-        
-        # Photo de profil (placeholder)
-        profile_frame = tk.Frame(profile_card, bg=self.colors['primary'], width=100, height=100)
-        profile_frame.pack(pady=(0, 20))
-        profile_frame.pack_propagate(False)
-        
-        tk.Label(profile_frame, text="👤", font=('Segoe UI', 48),
-                bg=self.colors['primary'], fg='white').place(relx=0.5, rely=0.5, anchor='center')
-        
-        # Informations
-        tk.Label(profile_card, text=f"{self.current_user['firstname']} {self.current_user['lastname']}", 
-                font=('Segoe UI', 24, 'bold'), bg=self.colors['card_bg'],
-                fg=self.colors['text_primary']).pack(pady=(0, 10))
-        
-        tk.Label(profile_card, text=self.current_user['email'], 
-                font=('Segoe UI', 14), bg=self.colors['card_bg'],
-                fg=self.colors['text_secondary']).pack(pady=(0, 30))
-        
-        # Détails
-        details_frame = tk.Frame(profile_card, bg=self.colors['card_bg'])
-        details_frame.pack(fill='x')
-        
-        details = [
-            ("📏 Taille", f"{self.current_user['height']} cm"),
-            ("⚖️ Poids", f"{self.current_user['weight']} kg"),
-            ("🎯 Objectif", self.current_user['goal'].capitalize()),
-            ("🏃‍♂️ Activité", self.current_user['activity_level'].capitalize())
-        ]
-        
-        for i, (label, value) in enumerate(details):
-            if i % 2 == 0:
-                row_frame = tk.Frame(details_frame, bg=self.colors['card_bg'])
-                row_frame.pack(fill='x', pady=10)
-            
-            frame = tk.Frame(row_frame, bg=self.colors['card_bg'])
-            frame.pack(side='left', padx=20)
-            
-            tk.Label(frame, text=label, font=('Segoe UI', 11),
-                    bg=self.colors['card_bg'], fg=self.colors['text_secondary']).pack(anchor='w')
-            tk.Label(frame, text=value, font=('Segoe UI', 16, 'bold'),
-                    bg=self.colors['card_bg'], fg=self.colors['text_primary']).pack(anchor='w')
-    
-    def show_recipe_search(self):
-        """Affiche la recherche de recettes"""
-        self.show_recipes()
-    
-    def show_health_tips(self):
-        """Affiche des conseils santé"""
-        tips = [
-            "💧 Buvez au moins 2L d'eau par jour",
-            "🥦 Consommez 5 portions de fruits et légumes",
-            "⚡ Limitez les sucres ajoutés",
-            "🌙 Dormez 7-8 heures par nuit",
-            "🏃‍♂️ 30 min d'activité physique quotidienne",
-            "🧘‍♀️ Gérez votre stress",
-            "⏰ Mangez à heures régulières",
-            "🥑 Privilégiez les graisses saines"
-        ]
-        
-        tip = random.choice(tips)
-        messagebox.showinfo("💡 Conseil santé", tip)
+        messagebox.showinfo("Info", "👤 Page profil - Fonctionnalité à venir!")
     
     def clear_window(self):
         """Vide la fenêtre"""
@@ -1753,15 +1165,9 @@ def main():
     try:
         root = tk.Tk()
         app = ModernSmartMealPlanner(root)
-        
-        # Centre la fenêtre
-        root.eval('tk::PlaceWindow . center')
-        
         root.mainloop()
     except Exception as e:
         print(f"Erreur: {e}")
-        import traceback
-        traceback.print_exc()
         input("Appuyez sur Entrée pour quitter...")
 
 if __name__ == "__main__":
